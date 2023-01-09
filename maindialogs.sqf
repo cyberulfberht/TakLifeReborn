@@ -1,492 +1,625 @@
+#include "Awesome\Functions\macro.h"
+
+disableSerialization;
+
+private["_art"];
+
 _array = _this select 3;
 _art   = _array select 0;
-_dollarz  = 'dollarz' call INV_GetItemAmount;_zusatzString = "";
+_moneh  = [player, 'money'] call INV_GetItemAmount;
+_zusatzString = "";
 
-if ((count _array)>1) then { _zusatzString = _array select 1; };
+if ((count _array)>1) then {
+	_zusatzString = _array select 1;
+};
 
-switch (_art) do {
-    case "bail": {
+if (_art == "bail") then {
 	if (!(createDialog "baildialog")) exitWith {hint "Dialog Error!";};
 	sliderSetRange [2, 100, 250000];		sliderSetSpeed [2, 1, 50];
 
-	while {(ctrlVisible 1008)} do
-	{
-	    ctrlSetText [1, format["$%1", ((round(sliderPosition 2)) call ISSE_str_IntToStr)]];
-	    sleep 0.3;
-	};
-    };
-    case "wantedrelease": {
-	if (!(createDialog "wantedrelease")) exitWith {hint "Dialog Error!";};
-	[2, 1, true, false] call DialogSpielerListe;
-	lbSetCurSel [1, 0];
-
-	// Change this and I'll fcking kill you ;)
-	_list = lbAdd [4, "Crime not in List"]; lbSetData [4,_list,"1000"];
-	if(iscop) then {
-	    _list = lbAdd [4, "Murder"]; lbSetData [4,_list,"10000"];
-	    _list = lbAdd [4, "Hit and Run"]; lbSetData [4,_list,"10000"];
-	    _list = lbAdd [4, "Bribery"]; lbSetData [4,_list,"2000"];
-	    _list = lbAdd [4, "VIP Assassination"]; lbSetData [4,_list,"10100"];
-	    _list = lbAdd [4, "Bank/Casino Robbery"]; lbSetData [4,_list,"7000"];
-	    _list = lbAdd [4, "Breach of Highway Code"]; lbSetData [4,_list,"500"];
-	    _list = lbAdd [4, "Evading a Police Checkpoint"]; lbSetData [4,_list,"2000"];
-	    _list = lbAdd [4, "Evading the Police"]; lbSetData [4,_list,"3000"];
-	    _list = lbAdd [4, "Theft of Civilian Vehicle"]; lbSetData [4,_list,"1500"];
-	    _list = lbAdd [4, "Assault"]; lbSetData [4,_list,"5000"];
-	    _list = lbAdd [4, "Rioting"]; lbSetData [4,_list,"3000"];
-	    _list = lbAdd [4, "Perverting the Course of Justice"]; lbSetData [4,_list,"500"];
-	    _list = lbAdd [4, "Robbery"]; lbSetData [4,_list,"4000"];
-	    _list = lbAdd [4, "Attempted Murder"]; lbSetData [4,_list,"5000"];
-	    _list = lbAdd [4, "Attempted Vehicle Theft"]; lbSetData [4,_list,"1000"];
-	    _list = lbAdd [4, "Possession of Illegal Weapon"]; lbSetData [4,_list,"3000"];
-	    _list = lbAdd [4, "Anti Social Behaviour"]; lbSetData [4,_list,"200"];
-	    _list = lbAdd [4, ""]; lbSetData [4,_list,"0"];
-	    _list = lbAdd [4, "Assisting a Jail Break"]; lbSetData [4,_list,"7000"];
-	    _list = lbAdd [4, "Arson"]; lbSetData [4,_list,"5000"];
-	    _list = lbAdd [4, "Kidnap"]; lbSetData [4,_list,"6000"];
-	    _list = lbAdd [4, "Manslaughter"]; lbSetData [4,_list,"5000"];
-	    _list = lbAdd [4, "Breach of Aviation Law"]; lbSetData [4,_list,"750"];
-	};
-	_list = lbAdd [4, "Theft of UN/Cop Vehicle"]; lbSetData [4,_list,"1700"];
-	_list = lbAdd [4, "Illegal Border Crossing"]; lbSetData [4,_list,"2500"];
-	_list = lbAdd [4, "Crimes Against Humanity"]; lbSetData [4,_list,"18000"];
-    _list = lbAdd [4, "Abuse of Emergency call"]; lbSetData [4,_list,"1500"];
-	_list = lbAdd [4, "Possession of Class A Drug"]; lbSetData [4,_list,"8000"];
-	_list = lbAdd [4, "Possession of Class B Drug"]; lbSetData [4,_list,"6000"];
-    _list = lbAdd [4, "Slavery"]; lbSetData [4,_list,"10000"];
-	_list = lbAdd [4, "Terrorism"]; lbSetData [4,_list,"18000"];
-
-	lbSetCurSel [4, 0];
-
-	while {ctrlVisible 1007} do
-	{
+	while {(ctrlVisible 1008)} do {
+		ctrlSetText [1, format["$%1", strM((round(sliderPosition 2)))]];
 		sleep 0.3;
 	};
-    };
-    case "generalstats": {
-		if (!(createDialog "liste_1_button")) exitWith {hint "Dialog Error!";};
-		_trennlinie = "---------------------------------------------";
-		lbAdd [1, _trennlinie];
-		lbAdd [1, "GENERAL INFO"];
-		lbAdd [1, _trennlinie];
-		lbAdd [1, format ["Date: %3.%2.%1", (date select 0), (date select 1), (date select 2)]];
+};
 
-		_npcCount = 0; _medCount = 0; _judCount = 0; _lawyerCount = 0;
-		{ if (!isPlayer _x) then { _npcCount = _npcCount + 1; }; } forEach (nearestObjects [[6453,8127,0],["Man"], 10000]);
-		{
-			if((typeOf _x) in ["Dr_Hladik_EP1","USMC_LHD_Crew_Blue","Doctor","Worker2"]) then { _medCount = _medCount + 1; };
-			if((typeOf _x) == "SchoolTeacher") then { _judCount = _judCount + 1; };
-			if((typeOf _x) == "RU_Functionary2") then { _lawyerCount = _lawyerCount + 1; };
-		} forEach playableUnits;
-		lbAdd [1, format ["There are %1 active NPCs",_npcCount]];
-		lbAdd [1, format["There are %1 Medics online!",_medCount]];
-		lbAdd [1, format["There are %1 Judges online!",_judCount]];
-		lbAdd [1, format["There are %1 Lawyers online!",_lawyerCount]];
-		lbAdd [1, ""];
-		lbAdd [1, _trennlinie];
-		lbAdd [1, "SERVER STATUS"];
-		lbAdd [1, _trennlinie];
-		lbAdd [1, format ["Runtime: %1 minutes", (round(time/60))]];
-		if (!isNil "svrStats") then {
-			svrFPS = svrStats select 0;
-			svrDelay = svrStats select 1;
-			svrPerf = "Perfect";
-			if(svrFPS < 1.9) then {
-				svrPerf = "Good";
-				if(svrFPS < 1.3) then {
-					svrPerf = "Average";
-					if(svrFPS < 1.01) then {
-						svrPerf = "Bad - Consider Restart";
-						if(svrFPS < 0.8) then { svrPerf = "Critical - RESTART NEEDED!"; };
-						hintSilent parseText format['Server Performance<br /><t size="1.4" color="#E62B2B">%4</t><br /><br />Server delay: %1m<br />Server FPS: %2<br />Client FPS: %3<br /><br />The lower the evaluation, the higher the desync and lagg!',round((time/60)-(svrDelay/60)),svrFPS,diag_fps,svrPerf];
-					};
-				};
-			};
 
-			lbAdd [1, format ["Performance (FPS): %1 (%2)",svrPerf,svrFPS]];
-			lbAdd [1, format ["Server Delay: %1m",round((time/60)-(svrDelay/60))]];
-			lbAdd [1, ""];
-		};
 
-		lbAdd [1, _trennlinie];
-		lbAdd [1, "CLIENT STATUS"];
-		lbAdd [1, _trennlinie];
-		lbAdd [1, format ["FPS: %1",diag_fps]];
-		lbAdd [1, format ["%1: %2",    localize "STRS_statdialog_deaths", deadtimes]];
-		lbAdd [1, format ["Respawn time: %1 seconds",round(DeadWaitSec+extradeadtime)]];
-    };
-    case "spielerliste": {
-	_money = "dollarz" call INV_GetItemAmount;
+if (_art == "spielerliste") then {
+
 	if (!(createDialog "liste_1_button")) exitWith {hint "Dialog Error!";};
-	lbAdd [1, "------- ~ Logfile Shortcuts ~ -------"];
-	lbAdd [1, "[SHIFT+1] Performance | [SHIFT+2] Finances | [SHIFT+3] Crimes | [SHIFT+4] Police Actions"];
+	_DFML = findDisplay -1;
+	
+	private["_dead_wait_time"];
+	_dead_wait_time = [player] call player_dead_wait_time;
+	
+	lbClear 1;
+	lbClear (_DFML displayCtrl 1);
+	
+	private["_total_money", "_private_money", "_factory_money", "_cash"];
+	_total_money = [player] call player_get_total_money;
+	_private_money = [player] call player_get_private_storage_money;
+	_factory_money = [player] call player_get_factory_money;
+	_cash = [player, 'money'] call INV_GetItemAmount;
+	_bank = [player] call get_bank_valuez;
 	_trennlinie = "---------------------------------------------";
-	lbAdd [1, _trennlinie];
-	lbAdd [1, localize "STRS_statdialog_playerinfo"];
-	lbAdd [1, _trennlinie];
-	lbAdd [1, format ["Money: $%1",_money]];
-	lbAdd [1, format ["Savings: $%1",((PLAYERDATA select 1) call ISSE_str_IntToStr)]];
-	lbAdd [1, format ["%1: %2/%3", localize "STRS_statdialog_weight", (call INV_GetOwnWeight), INV_Tragfaehigkeit]];
+	(_DFML displayCtrl 1) 	lbAdd format ["Date:     %3.%2.%1", (date select 0), (date select 1), (date select 2)];
+	(_DFML displayCtrl 1)	lbAdd format ["Runtime: %1 minutes", (round(time/60))];
+	(_DFML displayCtrl 1)	lbAdd _trennlinie;
+	(_DFML displayCtrl 1)	lbAdd localize "STRS_statdialog_playerinfo";
+	(_DFML displayCtrl 1)	lbAdd format ["Total money: $%1", strM(_total_money)];
+	(_DFML displayCtrl 1)	lbAdd format ["Money: $%2", localize "STRS_statdialog_health", strM(_cash)];
+	(_DFML displayCtrl 1)	lbAdd format ["Savings: $%2", localize "STRS_statdialog_health", strM(_bank)];
+	(_DFML displayCtrl 1)	lbAdd format ["Private storage: $%1", strM(_private_money)];
+	(_DFML displayCtrl 1)	lbAdd format ["Factory storage: $%1", strM(_factory_money)];
+//	lbAdd [1, format ["%1: %2",    localize "STRS_statdialog_hunger", round(INV_hunger)]];
+	(_DFML displayCtrl 1)	lbAdd format ["%1: %2/%3", localize "STRS_statdialog_weight", (call INV_GetOwnWeight), INV_CarryingCapacity];
+	(_DFML displayCtrl 1)	lbAdd format ["%1: %2",    localize "STRS_statdialog_copkills", ([player, "copskilled"] call player_get_scalar)];
+	(_DFML displayCtrl 1)	lbAdd format ["%1: %2",    localize "STRS_statdialog_civkills", ([player, "civskilled"] call player_get_scalar)];
+	(_DFML displayCtrl 1)	lbAdd format ["%1: %2",    "Arrests Made", ([player, "arrestsmade"] call player_get_scalar)];
+	(_DFML displayCtrl 1)	lbAdd format ["%1: %2",    localize "STRS_statdialog_selfkills", ([player, "selfkilled"] call player_get_scalar)];
+	(_DFML displayCtrl 1)	lbAdd format ["%1: %2",    localize "STRS_statdialog_deaths", ([player, "deadtime"] call player_get_scalar)];
+	(_DFML displayCtrl 1)	lbAdd format ["%1: %2 seconds",    "Dead-Wait time", round(_dead_wait_time)];
+	
+	if ( isCiv ) then { (_DFML displayCtrl 1) lbAdd format ["%1: %2",    "Demerit points", demerits]};
+	
+	(_DFML displayCtrl 1)	lbAdd format ["Staff Level: %1", strM(Staff_Level)];
+	(_DFML displayCtrl 1)	lbAdd format ["Supporter Level: %1", strM(Supporter_Level)];
+	(_DFML displayCtrl 1)	lbAdd format ["Blufor Level: %1", strM(Blufor_Level)];
+	(_DFML displayCtrl 1)	lbAdd format ["Opfor Level: %1", strM(Opfor_Level)];
 
-	lbAdd [1, _trennlinie];
-	lbAdd [1, localize "STRS_statdialog_licenselist"];
-	for [{_i=0}, {_i < (count INV_Lizenzen)}, {_i=_i+1}] do
-	{
-		if (((INV_Lizenzen select _i) select 0) call INV_HasLicense) then
+	(_DFML displayCtrl 1)	lbAdd _trennlinie;
+	(_DFML displayCtrl 1)	lbAdd localize "STRS_statdialog_licenselist";
+	
+	for [{_i=0}, {_i < (count INV_Licenses)}, {_i=_i+1}] do {
+		if (((INV_Licenses select _i) select 0) call INV_HasLicense) then
 		{
-		    _license = ((INV_Lizenzen select _i) select 2);
-		    if(_license == "Drivers License")then{_license = format ["%1 [%2/12]",_license,demerits];};
-		    if(_license == "Truck License")then{_license = format ["%1 [%2/12]",_license,truckDemerits];};
-		    lbAdd [1,_license];
+			(_DFML displayCtrl 1)	lbAdd (((INV_Licenses select _i) select 2));
 		};
 	};
-	lbAdd [1, _trennlinie];
-	lbAdd [1, "F A C T O R I E S:"];
-	for [{_i=0}, {_i < (count INV_ItemFabriken)}, {_i=_i+1}] do
-	{
-		if (((INV_ItemFabriken select _i) select 1) in INV_Fabrikowner) then
+	
+	(_DFML displayCtrl 1)	lbAdd _trennlinie;
+	(_DFML displayCtrl 1)	lbAdd "F A C T O R I E S:";
+	
+	for [{_i=0}, {_i < (count all_factories)}, {_i=_i+1}] do {
+		if (((all_factories select _i) select 1) in INV_Fabrikowner) then
 		{
-      _workers = call compile format["%1workers", ((INV_ItemFabriken select _i) select 8)];
-      lbAdd [1, format['%1: %2 workers', ((INV_ItemFabriken select _i) select 2), _workers]];
+
+		_workers = call compile format["%1workers", ((all_factories select _i) select 8)];
+		(_DFML displayCtrl 1)	lbAdd format['%1: %2 workers', ((all_factories select _i) select 2), _workers];
 		};
 	};
-
-	lbAdd [1, _trennlinie];
-
-	lbAdd [1, "B A N K - & - CASINO SAFE"];
-	lbAdd [1, (format ["Est. total funds in the main bank safe: $%1", robsafes select 0])];
-	lbAdd [1, (format ["Est. total funds in the casino safe: $%1", robsafes select 1])];
-	if (time_bank_rob_lockdown > time) then { lbAdd [1, (format ["Bank lockdown: %1 seconds.", (time_bank_rob_lockdown-time)])]; };
-	if (time_casino_rob_lockdown > time) then { lbAdd [1, (format ["Casino lockdown: %1 seconds.", (time_casino_rob_lockdown-time)])]; };
-	if (time_bank_lockout > time) then { lbAdd [1, (format ["Bank lockout time remaining: %1 seconds.", (time_bank_lockout-time)])]; };
-
-	lbAdd [1,""];lbAdd [1,""];
-	lbAdd [1, _trennlinie];
-	lbAdd [1, "GOVERNMENT"];
-	lbAdd [1, _trennlinie];
-	if (not(MayorNumber == -1)) then
-	{
-		lbAdd [1,format["Prime Minister: %1",name (playerarray select MayorNumber)]];
-	} else { lbAdd [1,"There is no elected Prime Minister"]; };
-	if(!isNil "sgov") then {
-		lbAdd [1, "South Leader: " + name (leader sgov)];
-	} else { lbAdd [1,"There is no south leader"]; };
-	if (not(chiefNumber == -1)) then
-	{
-	lbAdd [1,format["Chief Constable: %1",name (playerarray select chiefNumber)]];
-	} else { lbAdd [1,"There is no elected Chief Constable"]; };
-
-	lbAdd [1, format ["Next elections: %1 minutes",round((lastElection+35)-(time/60))]];
-
-	lbAdd [1, "   " + _trennlinie];
-	lbAdd [1, "    Laws [North & South]"];
-	lbAdd [1, "   " + _trennlinie];
-	_i = 0;
-	{
-		if (!(_x == "")) then
-		{
-			_i = _i + 1;
-			lbAdd [1, (format ["   %1: %2", _i, _x])];
-		};
-	} forEach (GesetzArray select 0);
-	lbAdd [1, "   " + _trennlinie];
-	_i = 0;
-	{
-		if (!(_x == "")) then
-		{
-			_i = _i + 1;
-			lbAdd [1, (format ["   %1: %2", _i, _x])];
-		};
-	} forEach (GesetzArray select 1);
-	lbAdd [1, "   " + _trennlinie];
-	_totalTaxes = 0;
-	{
-		if ((_x select 2) > 0) then
-		{
-		    _tax = (_x select 2); if ((_x select 1) == "Vehicle") then { _tax = _tax * 1.5; };
-		    _totalTaxes = _totalTaxes + _tax;
-		    lbAdd [1, format["%1 Tax: %2", (_x select 1), (_x select 2)] + "%" ];
-		};
-	} forEach INV_ItemTypenArray;
-	_totalTaxes = _totalTaxes + (bank_steuer * 0.5);
-	lbAdd [1, format["Transfer Tax: %1", bank_steuer] + "%" ];
-
-	protesters = protesters - [objNull];
-	_civNum = (civilian countSide playableUnits);
-	if(_civNum > 0) then { _totalTaxes = round(_totalTaxes + (((count protesters) * 100) / _civNum)) };
-	lbAdd [1, format ["Protesters against PM: %1/300",_totalTaxes]];
-	lbAdd [1, _trennlinie];
-	if (mlaw) then {
-	lbAdd [1, "MARTIAL LAW IS IN EFFECT"];}
-	else {
-	lbAdd [1, "MARTIAL LAW IS NOT IN EFFECT"];};
-
-	lbAdd [1,""];lbAdd [1,""];
-	lbAdd [1, _trennlinie];
-	lbAdd [1, "O I L  D E M A N D"];
-	if (isNil "oildemand") then {
-	lbAdd [1,"Oil Barrel Trader demand: 1"];}
-	else {
-	lbAdd [1, format["Oil Barrel Trader demand: %1", oildemand]];};
-
-	lbAdd [1, _trennlinie];
-	lbAdd [1, "W A N T E D:"];
-	lbAdd [1, _trennlinie];
-
-	for [{_i=0}, {_i < (count warrantarray)}, {_i=_i+1}] do
-	{
-		_singleWarrant = warrantarray select _i;
-		_idCiv = _singleWarrant select 0;
-		_pReason = _singleWarrant select 1;
-		_pBounty = _singleWarrant select 2;
-
-		lbAdd [1,(format ["%1 %2 ( Cop Bounty: %3, Jail Time: %4 min/s,Total Bail : %5): is wanted for :", _idCiv, (name _idCiv), _pBounty, round (_pBounty/(16.5*60)),(_pBounty*4)])];
-		lbAdd [1,(format ["  %1", _pReason])];
+	
+	(_DFML displayCtrl 1)	lbAdd _trennlinie;
+	(_DFML displayCtrl 1)	lbAdd localize "STRS_statdialog_regierung";
+	
+	if (not(MayorNumber == -1)) then {
+		(_DFML displayCtrl 1)	lbAdd (PlayerStringArray select MayorNumber);
 	};
-	lbAdd [1, _trennlinie];
+	
+	_next_president_election = server getVariable "next_president_election";
+	if (not(isnil "_next_president_election")) then { if (typeName _next_president_election == "SCALAR") then { if (_next_president_election > 0) then {
+		private ["_s"];
+		_s = "";
+		if (_next_president_election > 1) then { _s = "s";};
+		
+		(_DFML displayCtrl 1)	lbAdd format["Next election results in %1 minute%2", _next_president_election, _s]; 
+	};};}; 
+	
+	(_DFML displayCtrl 1)	lbAdd _trennlinie;
+	(_DFML displayCtrl 1)	lbAdd localize "STRS_statdialog_chief";
+	
+	if (not(chiefNumber == -1)) then {
+		(_DFML displayCtrl 1)	lbAdd (PlayerStringArray select chiefNumber);
+	};
+	
+	_next_chief_election = server getVariable "next_chief_election";
+	if (not(isnil "_next_chief_election")) then { if (typeName _next_chief_election == "SCALAR") then { if (_next_chief_election > 0) then {
+		private ["_s"];
+		_s = "";
+		if (_next_chief_election > 1) then { _s = "s";};
+		
+		(_DFML displayCtrl 1)	lbAdd format["Next election results in %1 minute%2", _next_chief_election, _s]; 
+	};};}; 
 
-	lbAdd [1,""];lbAdd [1,""];
-	lbAdd [1, _trennlinie];
-	lbAdd [1, "G A N G S:"];
-	lbAdd [1, _trennlinie];
+
+	(_DFML displayCtrl 1)	lbAdd _trennlinie;
+	(_DFML displayCtrl 1)	lbAdd "G A N G S:";
 
 	for [{_i=0}, {_i < (count gangsarray)}, {_i=_i+1}] do {
 		_gangarray = gangsarray select _i;
 		_gangname  = _gangarray select 0;
-		_grp = _gangarray select 1;
-		_members   = units _grp;
-		_territory = "";
+		_members   = _gangarray select 1;
+		_territory = "None";
 
-		{
-			_control = _x getVariable "control";
-			if (!(isNil "_control")) then {
-				if (_control == _grp) then {
-					_territory = _territory + (str _x) + ", ";
-				};
-			};
-		} forEach [gangarea1,gangarea2,gangarea3];
-		if (_territory == "") then { _territory = "None"; };
+		_control1 = gangarea1 getvariable "control";
+		_control2 = gangarea2 getvariable "control";
+		_control3 = gangarea3 getvariable "control";
+		
+		if(isNil "_control1") then { _control1 = "NA"; };
+		if(isNil "_control2") then { _control2 = "NA"; };
+		if(isNil "_control3") then { _control3 = "NA"; };
+		
+		if(_control1 == _gangname)then{_territory = "Gang area 1"};
+		if(_control2 == _gangname)then{if(_territory == "None")then{_territory = "Gang area 2"}else{_territory = _territory + ", Gang area 2"};};
+		if(_control3 == _gangname)then{if(_territory == "None")then{_territory = "Gang area 3"}else{_territory = _territory + ", Gang area 3"};};
+		_territory = _territory + ".";
 
-		lbAdd [1, format["%1 - Territory: %2 - Members:", _gangname, _territory]];
-		{
-			if (_x == leader _grp) then {
-				lbAdd [1, format["%1 (Leader)",name _x]];
-			} else {
-				lbAdd [1, format["%1",name _x]];
-			};
-		} forEach _members;
+		(_DFML displayCtrl 1)	lbAdd format["%1 - Territory: %2 - Members:", _gangarray select 0, _territory];
+		private "_j"; /// BUG FIX
+		for [{_j=0}, {_j < (count _members)}, {_j=_j+1}] do {if(_j == 0)then{(_DFML displayCtrl 1) lbAdd format["%1 (leader)", _members select _j]}else{(_DFML displayCtrl 1) lbAdd format["%1", _members select _j]};};
 	};
-    };
-    case "inventorycheck": {
+
+	(_DFML displayCtrl 1) lbAdd _trennlinie;
+
+	(_DFML displayCtrl 1)	lbAdd "B A N K:";
+	(_DFML displayCtrl 1)	lbAdd (format ["Est. total funds in the main bank safe's: $%1", strM(robpoolsafe1 + robpoolsafe2 + robpoolsafe3)]);
+
+	if(!local_useBankPossible)then{(_DFML displayCtrl 1) lbAdd (format ["Bank lockout time remaining: %1 seconds.", round rblock])};
+
+	(_DFML displayCtrl 1)	lbAdd _trennlinie;
+	(_DFML displayCtrl 1)	lbAdd (format ["W O R K P L A C E S"]);
+	
+		for [{_i=0}, {_i < (count BuyAbleBuildingsArray)}, {_i=_i+1}] do {
+			if ( ((BuyAbleBuildingsArray select _i) select 0) in BuildingsOwnerArray ) then {
+				(_DFML displayCtrl 1)	lbAdd (format ["%1", ((BuyAbleBuildingsArray select _i) select 1)]);
+			};
+		};
+		
+	(_DFML displayCtrl 1)	lbAdd _trennlinie;
+
+	(_DFML displayCtrl 1)	lbAdd localize "STRS_statdialog_laws";
+	_i = 0;
+	{
+		if (not(_x == "")) then {
+			_i = _i + 1;
+			(_DFML displayCtrl 1)	lbAdd (format ["%1: %2", _i, _x]);
+		};
+	}
+	forEach LawsArray;
+	(_DFML displayCtrl 1)	lbAdd _trennlinie;
+	(_DFML displayCtrl 1)	lbAdd localize "STRS_statdialog_taxes";
+	{
+		if ((_x select 2) > 0) then {
+			(_DFML displayCtrl 1)	lbAdd format["%1: %2", (_x select 1), (_x select 2)];
+		};
+	}
+	foreach INV_ItemTypeArray;
+	(_DFML displayCtrl 1)	lbAdd format["Transfer: %1", bank_tax];
+
+	(_DFML displayCtrl 1)	lbAdd _trennlinie;
+	(_DFML displayCtrl 1)	lbAdd "F O O D  S T O C K S:";
+
+	_stock = ["boar", (shop1 call INV_getshopnum)] call INV_GetStock;
+	_stock = _stock + (["boar", (shop2 call INV_GetShopNum)] call INV_GetStock);
+	_stock = _stock + (["boar", (shop3 call INV_GetShopNum)] call INV_GetStock);
+	_stock = _stock + (["boar", (shop4 call INV_GetShopNum)] call INV_GetStock);
+
+	(_DFML displayCtrl 1)	lbAdd format["boar meat: %1", _stock];
+
+	_stock = ["perch", (shop1 call INV_getshopnum)] call INV_GetStock;
+	_stock = _stock + (["perch", (shop2 call INV_GetShopNum)] call INV_GetStock);
+	_stock = _stock + (["perch", (shop3 call INV_GetShopNum)] call INV_GetStock);
+	_stock = _stock + (["perch", (shop4 call INV_GetShopNum)] call INV_GetStock);
+
+	(_DFML displayCtrl 1)	lbAdd format["perch: %1", _stock];
+
+	_stock = ["walleye", (shop1 call INV_GetShopNum)] call INV_GetStock;
+	_stock = _stock + (["walleye", (shop2 call INV_GetShopNum)] call INV_GetStock);
+	_stock = _stock + (["walleye", (shop3 call INV_GetShopNum)] call INV_GetStock);
+	_stock = _stock + (["walleye", (shop4 call INV_GetShopNum)] call INV_GetStock);
+
+	(_DFML displayCtrl 1)	lbAdd format["walleye: %1", _stock];
+
+	_stock = ["trout", (shop1 call INV_GetShopNum)] call INV_GetStock;
+	_stock = _stock + (["trout", (shop2 call INV_GetShopNum)] call INV_GetStock);
+	_stock = _stock + (["trout", (shop3 call INV_GetShopNum)] call INV_GetStock);
+	_stock = _stock + (["trout", (shop4 call INV_GetShopNum)] call INV_GetStock);
+
+	(_DFML displayCtrl 1)	lbAdd format["trout: %1", _stock];
+
+	_stock = ["bass", (shop1 call INV_GetShopNum)] call INV_GetStock;
+	_stock = _stock + (["bass", (shop2 call INV_GetShopNum)] call INV_GetStock);
+	_stock = _stock + (["bass", (shop3 call INV_GetShopNum)] call INV_GetStock);
+	_stock = _stock + (["bass", (shop4 call INV_GetShopNum)] call INV_GetStock);
+
+	(_DFML displayCtrl 1)	lbAdd format["bass: %1", _stock];
+
+	(_DFML displayCtrl 1)	lbAdd _trennlinie;
+
+	//lbAdd [1, "C R O P   S T R E N G T H:"];
+
+	//_stock = ["Bread", (shop1 call INV_GetShopNum)] call INV_GetStock;
+	//_stock = _stock + (["Bread", (shop2 call INV_GetShopNum)] call INV_GetStock);
+	//_stock = _stock + (["Bread", (shop3 call INV_GetShopNum)] call INV_GetStock);
+	//_stock = _stock + (["Bread", (shop4 call INV_GetShopNum)] call INV_GetStock);
+
+	//lbAdd [1, format["Wheat: %1", 100 - (_stock/400)*100]];
+
+	//lbAdd [1, _trennlinie];
+	
+
+
+	(_DFML displayCtrl 1)	lbAdd format["Oil demand: %1 barrel/s", strN(call shop_get_oil_barrel_demand)];
+	(_DFML displayCtrl 1)	lbAdd format["Fuel price: $%1 per liter", (call shop_get_fuel_price)];
+	(_DFML displayCtrl 1)	lbAdd _trennlinie;
+	(_DFML displayCtrl 1)	lbAdd localize "STRS_statdialog_playerlist";
+
+	private ["_i"];
+	_i = 0;
+	while { _i < (count PlayerStringArray) } do {
+		private["_player", "_player_variable_name"];
+		_player_variable_name = PlayerStringArray select _i;
+		_player = missionNamespace getVariable _player_variable_name;
+		
+		if(!isNil "_player") then {
+		if ([_player] call player_human) then {
+			private["_label_text", "_index", "_money","_supstatus","_uid"];
+			if(isStaff) then {
+				_money = [_player] call player_get_total_money;
+				_uid = getPlayerUID _player;
+				_supstatus = "";
+				if((_uid in supporters1) || (_uid in supporters2) || (_uid in supporters3) || (_uid in supporters4)) then {
+					_supstatus = " --- supporter";
+				};
+				if(_uid in supportersVIP) then {
+					_supstatus = " --- VIP";
+				};
+				_label_text = format ["%1: %2 |-| $%3%4", _player, (name _player), strM(_money), _supstatus];
+			}
+			else {
+				_label_text =  format ["%1: %2", _player, (name _player)];
+			};
+			_index = (_DFML displayCtrl 1) lbAdd _label_text;
+			private["_wanted"];
+			if (not([_player] call player_blufor) && ([_player] call player_get_bounty) > 0) then {
+				(_DFML displayCtrl 1) lbSetColor [_index, [1, 0, 0, 1]];
+			};
+		};
+		};
+		_i = _i + 1;
+	};
+	
+	(_DFML displayCtrl 1)	lbAdd _trennlinie;
+	(_DFML displayCtrl 1)	lbAdd "W A N T E D:";
+	
+	private["_i"];
+	_i = 0;
+	while { _i < (count PlayerStringArray) } do {
+		private["_player_variable_name", "_player_variable"];
+		_player_variable_name = PlayerStringArray select _i;
+		_player_variable = missionNamespace getVariable _player_variable_name;
+		if (!isNil "_player_variable") then {
+		if (not([_player_variable] call player_blufor) && ([_player_variable] call player_get_wanted)) then {
+			private["_bounty", "_reasons"];
+			_reasons = [_player_variable] call player_get_reason; 
+			_bounty = [_player_variable] call player_get_bounty;
+			
+			(_DFML displayCtrl 1) lbAdd (format ["%1 (Bounty: %3): %2 is wanted for %4 crime/s:", _player_variable, (name _player_variable), _bounty, (count _reasons)]);
+			private["_j", "_count"];
+			_j = 0;
+			while { _j < (count _reasons) } do {
+				private["_reason"];
+				_reason = _reasons select _j;
+				(_DFML displayCtrl 1) lbAdd (format ["    %1. %2", (_j + 1), _reason]); 
+				_j = _j + 1;
+			};
+			(_DFML displayCtrl 1) lbAdd _trennlinie;
+		};
+		};
+		_i = _i + 1;
+	};
+
+	//HotFix by HarryWorner 03.April.2012
+	(_DFML displayCtrl 1)	lbAdd _trennlinie;
+};
+
+if (_art == "inventorycheck") then {
 	if (!(createDialog "liste_1_button")) exitWith {hint "Dialog Error!";};
+	
+	_DFML = findDisplay -1;
+	
+	lbClear 1;
+	lbClear (_DFML displayCtrl 1);
+	
 	_licensearray  = (_array select 1);
 	_inventararray = (_array select 2);
 	_civobj        = (_array select 3);
 	_waffenarray   = weapons _civobj - nonlethalweapons;
 	_magazinarray  = magazines _civobj;
 	_trennlinie = "---------------------------------------------";
-	lbAdd [1, localize "STRS_statdialog_licenselist"];
+	(_DFML displayCtrl 1)	lbAdd localize "STRS_statdialog_licenselist";
 	private "_i"; //// ADD to fix bug
 	for [{_i=0}, {_i < (count _licensearray)}, {_i=_i+1}] do
 	{
 		_lizenz = (_licensearray select _i);
-		lbAdd [1, format ["%1", (_lizenz call INV_GetLicenseName)]];
+		(_DFML displayCtrl 1)	lbAdd format ["%1", (_lizenz call INV_GetLicenseName)];
 	};
-	lbAdd [1, _trennlinie];
-	lbAdd [1, localize "STRS_statdialog_inventarlist"];
+	(_DFML displayCtrl 1)	lbAdd _trennlinie;
+	(_DFML displayCtrl 1)	lbAdd localize "STRS_statdialog_inventarlist";
 	for [{_i=0}, {_i < (count _inventararray)}, {_i=_i+1}] do
 	{
 		_objekt     = ((_inventararray select _i) select 0);
-		_objektname = (_objekt call INV_getitemName);
-		_anzahl     = ((_inventararray select _i) select 1);
+		_objektname = (_objekt call INV_GetItemName);
+		_anzahl     = [((_inventararray select _i) select 1)] call decode_number;
 		if (_anzahl > 0) then
 		{
-			lbAdd [1, format ["%1: %2", _objektname, _anzahl]];
+			(_DFML displayCtrl 1)	lbAdd format ["%1: %2", _objektname, _anzahl];
 		};
 	};
 
-	lbAdd [1, _trennlinie];
-	lbAdd [1, localize "STRS_statdialog_waffen"];
+	(_DFML displayCtrl 1)	lbAdd _trennlinie;
+	(_DFML displayCtrl 1)	lbAdd localize "STRS_statdialog_waffen";
+	
 	for [{_i=0}, {_i < (count _waffenarray)}, {_i=_i+1}] do
 	{
 		_objekt     = _waffenarray select _i;
 		_scriptname = _objekt call INV_GetScriptFromClass_Weap;
-		_objektname = (_scriptname call INV_getitemName);
-		lbAdd [1, format ["%1", _objektname]];
+		_objektname = (_scriptname call INV_GetItemName);
+		(_DFML displayCtrl 1)	lbAdd format ["%1", _objektname];
 	};
-	lbAdd [1, _trennlinie];
-	_index = lbAdd [1, localize "STRS_statdialog_magazine"];
+	(_DFML displayCtrl 1)	lbAdd _trennlinie;
+	_index = (_DFML displayCtrl 1)	lbAdd localize "STRS_statdialog_magazine";
 	for [{_i=0}, {_i < (count _magazinarray)}, {_i=_i+1}] do
 	{
 		_objekt     = _magazinarray select _i;
 		_scriptname = _objekt call INV_GetScriptFromClass_Mag;
-		_objektname = (_scriptname call INV_getitemName);
-		lbAdd [1, format ["%1", _objektname]];
+		_objektname = (_scriptname call INV_GetItemName);
+		(_DFML displayCtrl 1)	lbAdd format ["%1", _objektname];
 	};
-	lbAdd [1, _trennlinie];
-    };
+	(_DFML displayCtrl 1)	lbAdd _trennlinie;
+};
 
-    case "gesetz": {
-		if (!(createDialog "gesetzdialog")) exitWith {hint "Dialog Error!";};
-		{
-			_index = lbAdd [1, _x];
-			lbSetData [1, _index, _x];
-		} forEach (GesetzArray select 0);
-		while {ctrlVisible 1020} do
-		{
-			_selected = lbCurSel 1;
-			ctrlSetText [2, lbText [1, _selected]];
-			waitUntil {((!(_selected == lbCurSel 1)) or (!(ctrlVisible 1020)))};
-		};
-    };
+if (_art == "inventorysteal") then {
 
-    case "coplog": {
-	if (!(createDialog "liste_1_button")) exitWith {hint "Dialog Error!";};
-	_trennlinie = "---------------------------------------------";
-	private "_i"; /// ADDED TO FIX BUG
-	lbAdd [1, "C U R R E N T  W A R R A N T S:"];
-	lbAdd [1, _trennlinie];
-	for [{_i=0}, {_i < (count warrantarray)}, {_i=_i+1}] do
+};
+
+if (_art == "gesetz") then {
+	if (!(createDialog "gesetzdialog")) exitWith {hint "Dialog Error!";};
+	
+	_DFML = findDisplay -1;
+		
+	lbClear 1;
+	lbClear (_DFML displayCtrl 1);
+	
 	{
-	    _singleWarrant = warrantarray select _i;
-	    _idCiv = _singleWarrant select 0;
-	    _pReason = _singleWarrant select 1;
-	    _pBounty = _singleWarrant select 2;
-	    lbAdd [1, (format ["%1 %2 ( Cop Bounty: %3, Jail Time: %4 min/s,Total Bail : %5): is wanted for :", _idCiv, (name _idCiv), _pBounty, round (_pBounty/(16.5*60)),(_pBounty*4)])];
-	    lbAdd [1,(format ["  %1", _pReason])];
+		_index = (_DFML displayCtrl 1)	lbAdd _x;
+		(_DFML displayCtrl 1)	lbSetData [_index, _x];
+	}
+	forEach LawsArray;
+	
+	while {ctrlVisible 1020} do {
+		_selected = lbCurSel 1;
+		ctrlSetText [2, lbText [1, _selected]];
+		waitUntil {((not(_selected == lbCurSel 1)) or (not(ctrlVisible 1020)))};
 	};
-	lbAdd [1, _trennlinie];
-    };
+};
 
-    case "wahlen": {
-		if (!(createDialog "wahldialog")) exitWith {hint "Dialog Error!";};
-		_array = [0, 1, true, false] call DialogSpielerListe;
-		lbSetCurSel [1, _array select 1];
-    };
+if (_art == "coplog") then {
+	if (!(createDialog "liste_1_button")) exitWith {hint "Dialog Error!";};
+	
+	_DFML = findDisplay -1;
+	
+	lbClear 1;
+	lbClear (_DFML displayCtrl 1);
 
-    case "chief": {
-		if (!(createDialog "chiefdialog")) exitWith {hint "Dialog Error!";};
-		_arrayc = [0, 1, true, false] call DialogSpielerListe;
-		lbSetCurSel [1, _arrayc select 1];
-    };
+	_trennlinie = "---------------------------------------------";
+	(_DFML displayCtrl 1)	lbAdd _trennlinie;
 
-	case "steuern": {
-		if (!(createDialog "steuerdialog")) exitWith {hint "Dialog Error!";};
-		sliderSetSpeed [12, 1, 5];
-		sliderSetRange [12, 0, 20];
-		sliderSetPosition [12,((INV_ItemTypenArray select 0) select 2)];
-		sliderSetSpeed [22, 1, 5];		sliderSetRange [22, 1, 20];
-		sliderSetPosition [22,((INV_ItemTypenArray select 1) select 2)];
-		sliderSetSpeed [32, 1, 5];				sliderSetRange [32, 1, 20];
-		sliderSetPosition [32,((INV_ItemTypenArray select 2) select 2)];
-		sliderSetSpeed [42, 1, 5];
-		sliderSetRange [42, 0, 20];
-		sliderSetPosition [42,((INV_ItemTypenArray select 3) select 2)];
-		sliderSetSpeed [52, 1, 5];
-		sliderSetRange [52, 0, 20];
-		sliderSetPosition [52,bank_steuer];
-		while {ctrlVisible 1032} do {
-			ctrlSetText [11, format[localize "STRS_dialogandere_steuerdialog_itemsteuer", ((round(sliderPosition 12)) call ISSE_str_IntToStr)]];
-			ctrlSetText [21, format[localize "STRS_dialogandere_steuerdialog_fahrzeugsteuer", ((round(sliderPosition 22)) call ISSE_str_IntToStr)]];
-			ctrlSetText [31, format[localize "STRS_dialogandere_steuerdialog_magazinsteuer", ((round(sliderPosition 32)) call ISSE_str_IntToStr)]];
-			ctrlSetText [41, format[localize "STRS_dialogandere_steuerdialog_waffesteuer", ((round(sliderPosition 42)) call ISSE_str_IntToStr)]];
-			ctrlSetText [51, format[localize "STRS_dialogandere_steuerdialog_banksteuer", ((round(sliderPosition 52)) call ISSE_str_IntToStr)]];
-			sleep 0.1;
+	private ["_i"];
+	(_DFML displayCtrl 1)	lbAdd "C U R R E N T  W A R R A N T S:";
+	(_DFML displayCtrl 1)	lbAdd _trennlinie;
+	_i = 0;
+	while { _i < (count PlayerStringArray) } do {
+		private["_player_variable_name", "_player_variable"];
+		_player_variable_name = PlayerStringArray select _i;
+		_player_variable = missionNamespace getVariable _player_variable_name;
+		
+		if (not([_player_variable] call player_blufor) && ([_player_variable] call player_get_wanted)) then {
+			private["_bounty", "_reasons"];
+			_reasons = [_player_variable] call player_get_reason; 
+			_bounty = [_player_variable] call player_get_bounty;
+			
+			(_DFML displayCtrl 1) lbAdd (format ["%1 (Bounty: %3): %2 is wanted for %4 crime/s:", _player_variable, (name _player_variable), _bounty, (count _reasons)]);
+			private["_j"];
+			_j = 0;
+			while { _j < (count _reasons) } do {
+				private["_reason"];
+				_reason = _reasons select _j;
+				(_DFML displayCtrl 1) lbAdd (format ["    %1. %2", (_j + 1), _reason]); 
+				_j = _j + 1;
+			};
+			(_DFML displayCtrl 1) lbAdd _trennlinie;
+		};
+		_i = _i + 1;
+	};
+};
+
+if (_art == "wahlen") then {
+	if (!(createDialog "wahldialog")) exitWith {hint "Dialog Error!";};
+	
+	_DFML = findDisplay -1;
+	
+	lbClear 1;
+	lbClear (_DFML displayCtrl 1);
+	
+	private["_index"];
+	_index = [1] call DialogNotCopsList;
+	(_DFML displayCtrl 1) lbSetCurSel _index;
+};
+
+if (_art == "chief") then {
+	if (!(createDialog "chiefdialog")) exitWith {hint "Dialog Error!";};
+	
+	_DFML = findDisplay -1;
+	
+	lbClear 1;
+	lbClear (_DFML displayCtrl 1);
+	
+	private["_c", "_index"];
+	_c = 0;
+	_player_variable_name = "";
+	_index = -1;
+
+	for [{_c=0}, {_c < (count PlayerStringArray)}, {_c=_c+1}] do {
+		private["_player_variable_name", "_player_variable"];
+		_player_variable_name = PlayerStringArray select _c;
+		_player_variable = missionNamespace getVariable _player_variable_name;
+		if(!isNil "_player_variable") then {
+		if (([_player_variable] call player_exists)) then {
+			private["_player_blufor"];
+			_player_blufor = [_player_variable] call player_blufor;
+			if (not(_player_blufor)) exitWith {};
+			
+			private["_player_name"];
+			_player_name = (name _player_variable);
+			_index = lbAdd [1, format ["%1 - (%2)", _player_variable_name, _player_name]];
+			lbSetData [1, _index, format["%1", _c]];
+		};
 		};
 	};
+};
 
-    case "copmenu": { if (!(createDialog "CopMenu")) exitWith {hint "Dialog Error!"}; };
-    case "copmenulite": { if (!(createDialog "CopMenuLite")) exitWith {hint "Dialog Error!"}; };
+if (_art == "steuern") then {
+	if (!(createDialog "steuerdialog")) exitWith {hint "Dialog Error!";};
+	
+	_DFML = findDisplay -1;
+	
+	lbClear 1;
+	lbClear (_DFML displayCtrl 1);
+	
+	sliderSetSpeed [12, 1, 5];
+	sliderSetRange [12, 0, 30];
+	sliderSetPosition [12,((INV_ItemTypeArray select 0) select 2)];
+	sliderSetSpeed [22, 1, 5];		sliderSetRange [22, 1, 30];
+	sliderSetPosition [22,((INV_ItemTypeArray select 1) select 2)];
+	sliderSetSpeed [32, 1, 5];				sliderSetRange [32, 1, 30];
+	sliderSetPosition [32,((INV_ItemTypeArray select 2) select 2)];
+	sliderSetSpeed [42, 1, 5];
+	sliderSetRange [42, 0, 30];
+	sliderSetPosition [42,((INV_ItemTypeArray select 3) select 2)];
+	sliderSetSpeed [52, 1, 5];
+	sliderSetRange [52, 0, 30];
+	sliderSetPosition [52,bank_tax];
+	while {ctrlVisible 1032} do {
+		ctrlSetText [11, format[localize "STRS_dialogandere_steuerdialog_itemsteuer", strN((round(sliderPosition 12)))]];
+		ctrlSetText [21, format[localize "STRS_dialogandere_steuerdialog_fahrzeugsteuer", strN((round(sliderPosition 22)))]];
+		ctrlSetText [31, format[localize "STRS_dialogandere_steuerdialog_magazinsteuer", strN((round(sliderPosition 32)))]];
+		ctrlSetText [41, format[localize "STRS_dialogandere_steuerdialog_waffesteuer", strN((round(sliderPosition 42)))]];
+		ctrlSetText [51, format[localize "STRS_dialogandere_steuerdialog_banksteuer", strN((round(sliderPosition 52)))]];
+		sleep 0.1;
+	};
+};
 
-    case "distribute": {
+if (_art == "copmenu") then {
+	if (!(createDialog "CopMenu")) exitWith {hint "Dialog Error!"};
+};
+
+if (_art == "copmenulite") then {
+	if (!(createDialog "CopMenuLite")) exitWith {hint "Dialog Error!"};
+};
+
+if (_art == "distribute") then {
 	if (!(createDialog "distribute")) exitWith {hint "Dialog Error!"};
-	private "_j";   /// BUG FIX
-	for [{_j=0}, {_j < (count INV_VehicleArray)}, {_j=_j+1}] do {
-	    if (!(isNull(INV_VehicleArray select _j))) then {
-		_vehicle = (INV_VehicleArray select _j);
-		_index = lbAdd [1, format["%1 (%2)", _vehicle, typeof _vehicle] ];
-		lbSetData [1, _index, format["%1", _vehicle] ];
-	    };
-	};
-	buttonSetAction [2, "[lbData [1, (lbCurSel 1)]] execVM ""choosecity.sqf"";"];
-    };
+};
 
-    case "impound": {
+if (_art == "impound") then {
 	if (!(createDialog "distribute")) exitWith {hint "Dialog Error!"};
-	private "_j"; /// BUG FIX
-	ctrlSetText [3, "Retrieve impounded vehicle (Cars: $250 - Motorcycles: $75)"];
+	_DFML = findDisplay -1;
+	
+	lbClear 1;
+	lbClear (_DFML displayCtrl 1);
 
-	for [{_j=0}, {_j < (count INV_VehicleArray)}, {_j=_j+1}] do {
-	    _vehicle = (INV_VehicleArray select _j);
-	    if (!isNull _vehicle and _vehicle distance impoundarea1 < 200) then {
-		_index = lbAdd [1, format["%1 (%2)", _vehicle, typeof _vehicle] ];
-		lbSetData [1, _index, format["%1", _vehicle] ];
-	    };
+	private "_j"; 
+	ctrlSetText [3, format["Retrieve impounded vehicle ($%1)", strM(impoundpay)]];
+
+	private["_vehicles"];
+	_vehicles = [player] call vehicle_list;
+	for [{_j=0}, {_j < (count _vehicles)}, {_j=_j+1}] do {
+		_vehicle = (_vehicles select _j);
+		if (!isNull _vehicle and _vehicle distance impoundarea1 < 200) then {
+			_index = (_DFML displayCtrl 1)	lbAdd format["%1 (%2)", _vehicle, typeof _vehicle];
+			(_DFML displayCtrl 1)	lbSetData [_index, format["%1", _vehicle]];
+		};
 	};
-	buttonSetAction [2, "[lbData [1, (lbCurSel 1)],""buy""] execVM ""impound.sqf"";"];
-    };
+	buttonSetAction [2, "[lbData [1, (lbCurSel 1)],""buy""] call A_SCRIPT_IMPOUND;"];
+};
 
-    case "gangmenu": {
-		if (!(createDialog "gang_menu")) exitWith {hint "Dialog Error!";};
-
-		_i = 0;
-		{
-			_name = _x select 0;
-			_grp = _x select 1;
-			_mems = units _grp;
-
-			if(count _mems > 0) then {
-				if (!(isNil "sgov")) then {
-					if(sgov == _grp) then {
-						if (count _mems > 3 || !(isNil("warStartTime")) ) then {
-							_name = "South Government";
-						} else { ("hint ""The South Government dropped below 4 members and was dissolved!""; sgov = nil;") call toClients; };
-					};
-				};
-				_txt = format ["%1 [%2 Member] (",_name,count _mems];
-				{ _txt = _txt + (name _x) + ","; } forEach _mems;
-				_txt = _txt + ")";
-
-				_index = lbAdd [202,_txt];
-			} else {
-				gangsarray set [_i,-1];
-			};
-			_i = _i + 1;
-		} forEach gangsarray;
-		gangsarray = gangsarray - [-1];
-    };
-
-    case "gildenverwaltung": {
-		_grp = group player;
-		if(player != leader _grp)exitWith{hintSilent "You are not the gang leader!"};
-		closedialog 0;
-		if (!(createDialog "gilde_verwaltung")) exitWith {hint "Dialog Error!";};
-
-		_index = lbAdd [201, localize "STRS_hints_ja"];
-		lbSetData [201, _index, "true"];
-		_index = lbAdd [201, localize "STRS_hints_nein"];
-		lbSetData [201, _index, "false"];
-
-		{
-			_index = lbAdd [102, (format ["%1", name _x]) ];
-			lbSetData [102, _index, (format ["%1", _x])]
-		} forEach (units _grp);
-    };
-
-	case "constitution": {
-		if (!(createDialog "constitution")) exitWith {hint "Dialog Error!";};
-		_trennlinie = "-------------------------------------------------";
-		lbAdd [1, ""];
-		lbAdd [1, "§ Armitxes Network Rulebook §"];
-		lbAdd [1, _trennlinie];
-		lbAdd [1, "Hacking & cheating = [ArmA 2, ArmA 3] Network & Player Index Ban"];
-		lbAdd [1, "Bug & glitch abusing = [ArmA 2] Network Ban (1 week -> 2 months -> Perma)"];
-		lbAdd [1, "Money cheating servers = [ArmA 2, Arma 3] Server & User IP Ban (Permanent)"];
-		lbAdd [1, "~ armitxes.net"];
-		lbAdd [1, ""];
-		lbAdd [1, _trennlinie];
-		lbAdd [1, "§ Server Rulebook §"];
-		lbAdd [1, _trennlinie];
-		lbAdd [1, "Enter your server rules at the bottom of the maindialogs.sqf"];
+if (_art == "gangmenu") then {
+	if (!(createDialog "gang_menu")) exitWith {hint "Dialog Error!";};
+	private "_i";
+	for [{_i=0}, {_i < (count gangsarray)}, {_i=_i+1}] do {
+		_gangarray = gangsarray select _i;
+		_index = lbAdd [202, format ["%1 - Memberlist: %2", (_gangarray select 0), (_gangarray select 1)]];
+		lbSetData [202, _index, format ["%1", (_gangarray select 0)]];
 	};
+};
+if (_art == "squadmenu") then {
+	if (!(createDialog "squad_menu")) exitWith {hint "Dialog Error!";};
+	private "_i";
+	for [{_i=0}, {_i < (count squadarray)}, {_i=_i+1}] do {
+		_squadarray = squadarray select _i;
+		_index = lbAdd [202, format ["%1 - Memberlist: %2", (_squadarray select 0), (_squadarray select 1)]];
+		lbSetData [202, _index, format ["%1", (_squadarray select 0)]];
+	};
+};
+
+if (_art == "gildenverwaltung") then {
+	if(!gangleader)exitwith{player groupchat "you are not the gang leader!"};
+
+	closedialog 0;
+	if (!(createDialog "gilde_verwaltung")) exitWith {hint "Dialog Error!";};
+
+	_members = [];
+	private "_i";
+	for [{_i=0}, {_i < (count gangsarray)}, {_i=_i+1}] do {
+		if ((name player) in ((gangsarray select _i) select 1)) exitWith {_members = ((gangsarray select _i) select 1)};
+	};
+
+	_index = lbAdd [201, localize "STRS_hints_ja"];
+	lbSetData [201, _index, "true"];
+	_index = lbAdd [201, localize "STRS_hints_nein"];
+	lbSetData [201, _index, "false"];
+
+	private["_i"];
+	_i = 0;
+	{
+		_member = (_members select _i);
+		_obj = [_member] call player_lookup_name;
+		if(!([_obj] call player_civilian)) then {"notingame"} else { _obj };
+		_index = lbAdd [102, (format ["%1 (%2)", _member, _obj])];
+		lbSetData [102, _index, (format ["%1", _obj])];
+	} count _members;
+};
+if (_art == "squad_manage") then {
+	if(!squadleader)exitwith{player groupchat "you are not the squad leader!"};
+
+	closedialog 0;
+	if (!(createDialog "gilde_verwaltung_squad")) exitWith {hint "Dialog Error!";};
+
+	_members = [];
+	private "_i";
+	for [{_i=0}, {_i < (count squadarray)}, {_i=_i+1}] do {
+		if ((name player) in ((squadarray select _i) select 1)) exitWith {_members = ((squadarray select _i) select 1)};
+	};
+
+	_index = lbAdd [201, localize "STRS_hints_ja"];
+	lbSetData [201, _index, "true"];
+	_index = lbAdd [201, localize "STRS_hints_nein"];
+	lbSetData [201, _index, "false"];
+
+	private["_i"];
+	_i = 0;
+	while { _i < (count _members) } do {
+		_member = (_members select _i);
+		_obj = if(not([_obj] call player_blufor)) then {"notingame"} else { _obj };
+		_index = lbAdd [102, (format ["%1 (%2)", _member, _obj])];
+		lbSetData [102, _index, (format ["%1", _obj])];
+		_i = _i + 1;
+	};
+};
+
+if (_art == "pmc_whitelist") then {
+	if (not(ischief)) exitWith { player groupChat "Cannot access PMC whitelist: You are not the police chief";};
+	["PMC_1"] spawn A_WBL_F_DIALOG_INIT;
 };

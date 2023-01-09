@@ -1,8 +1,8 @@
 class CfgVehicles;
 
-class Cannabis : CfgVehicles
+class marijuana : CfgVehicles
 	{
 	scope = public;
-	name = "Cannabis";
+	name = "marijuana";
 	model = "\ca\plants2\plant\pumpkin";
 	};

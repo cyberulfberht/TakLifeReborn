@@ -18,7 +18,7 @@ _markerlocation = (coppatrolarray select _newmarker);
 
 _markerobj = createmarkerlocal ["patrolmarker",[0,0]];
 _markername = "patrolmarker";
-_markerojb setmarkershapelocal "Icon";
+_markerobj setmarkershapelocal "Icon";
 //"patrolmarker" setMarkerBrushLocal "solid";
 "patrolmarker" setmarkertypelocal "warning";
 "patrolmarker" setmarkercolorlocal "coloryellow";
@@ -32,15 +32,12 @@ sleep 2;
 _plocation = getpos player;
 _distance = _plocation distance _markerlocation;
 
-while {pmissionactive} do
-
-	{
-
+while {pmissionactive} do {
 	if (player distance _markerlocation <= 30) then
 		{
 		deleteMarkerLocal "patrolmarker";
 		_moneyearned = (ceil(_distance * patrolmoneyperkm));
-		[_moneyearned] call setMoney;
+		[player, _moneyearned] call transaction_bank;
 		player sidechat format["You earned $%1 for patroling", _moneyearned];
 		player sidechat "please wait a moment for a new patrol point";
 
@@ -76,12 +73,13 @@ deleteMarkerLocal "patrolmarker";
 
 if (_selection == "end") then
 {
-  pmissionactive = false;
-  deleteMarkerLocal "patrolmarker";
-  player sidechat "Patrol mission ended you must wait 60s to get a new one";
-  patrolwaittime = true;
-  sleep 60;
-  patrolwaittime = false;
+pmissionactive = false;
+deleteMarkerLocal "patrolmarker";
+player sidechat "Patrol mission ended you must wait 60s to get a new one";
+patrolwaittime = true;
+sleep 60;
+patrolwaittime = false;
+
 };
 
 

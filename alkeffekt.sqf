@@ -9,10 +9,10 @@ if (_art == "init") then {
 	if (_art == "use") then {
 		_item   = _this select 1;
 		_anzahl = _this select 2;
-		if (INV_alkoholusesperre == 1) exitWith {hintSilent localize "STRS_inv_item_druguse_toomany";};
+		if (INV_alkoholusesperre == 1) exitWith {player groupChat localize "STRS_inv_item_druguse_toomany";};
 		if (INV_alkohol_usesperre) then {INV_alkoholusesperre = 1;};
 		INV_AlkoholCounter =  INV_AlkoholCounter + _anzahl;
-		[_item, -(_anzahl)] call INV_AddInventoryItem;
+		[player, _item, -(_anzahl)] call INV_AddInventoryItem;
 		_endeZeit = time + 45 + (_anzahl * 10);
 		_fadeInTime   = 0;
 		_fadeOutTime  = 0;
@@ -44,13 +44,14 @@ if (_art == "init") then {
 		};
 		if (_item == "Vodka" OR _item == "beer2" OR _item == "wiskey") then {
 			while {time < _endeZeit} do {
+				liafu = true;
 				if (not(alive player)) exitWith {};
 				//player setdamage ((damage player) - 0.01);
 				if (vehicle player == player) then {
 					_v1 = velocity player select 0;
 					_v2 = velocity player select 1;
 					_v3 = velocity player select 2;
-					_v1add = (random 5 - random 5); _v2add = (random 4 - random 4);
+					_v1add = (random 10 - random 8); _v2add = (random 12 - random 10);
 					player setVelocity [_v1+_v1add, _v2+_v2add, _v3];
 				};
 				if (time > _fadeInTime) then {
@@ -68,7 +69,7 @@ if (_art == "init") then {
 		};
 		titleCut ["","WHITE IN",0];
 		sleep 10;
-		hintSilent localize "STRS_inv_item_druguse_ende";
+		player groupChat localize "STRS_inv_item_druguse_ende";
 		INV_alkoholusesperre = 0;
 		INV_AlkoholCounter =  INV_AlkoholCounter - _anzahl;
 	};

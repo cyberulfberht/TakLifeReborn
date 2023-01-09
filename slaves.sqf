@@ -1,102 +1,128 @@
+#include "Awesome\Functions\macro.h"
+
 _art  = ((_this select 3) select 0);
-_dollarz = 'dollarz' call INV_GetItemAmount;
+_moneh = [player, 'money'] call INV_GetItemAmount;
 
-if (_art == "slave") exitWith
+liafu = true;
 
-{
+if (_art == "slave") exitWith {
 
-if (localslave >= maxslave) exitWith {role groupChat localize "STRS_slave_zuviele"};
+	if (localslave >= maxslave) exitWith {
+		role groupChat localize "STRS_slave_zuviele"
+	};
 
-if (_dollarz <= slave_cost) exitWith {role groupChat localize "STRS_slave_nomoney"};
+	if (_moneh < slave_cost) exitWith {
+		role groupChat localize "STRS_slave_nomoney"
+	};
 
-['dollarz', -(slave_cost)] call INV_AddInventoryItem;
+	if (currecciv) exitWith {
+		role groupChat "Already buying a slave!"
+	};
 
-hintSilent format[localize "STRS_slave_gekauft", rolestring, (slave_cost call ISSE_str_IntToStr)];
+	currecciv = true;
+	role groupChat "Buying slave";
+	sleep 2;
 
-_arbeiternummer   = localslavecounter;
-localslavecounter = localslavecounter + 1;
-localslave        = localslave + 1;
-_slavenumber      = localslavecounter;
-_slavename        = player;
-_civ 		  = civslavearray select round random(count civslavearray - 1);
+	[player, 'money', -(slave_cost)] call INV_AddInventoryItem;
 
-call compile format ['_slavename = "%3" createUnit [position player, group player, "%1slave%2 = this; this setVehicleVarName ""%1slave%2"";"]; _slavename = %1slave%2;_slavename setpos getpos player', rolestring, _slavenumber, _civ];
-processInitCommands;
+	player groupChat format[localize "STRS_slave_gekauft", rolestring, strM(slave_cost)];
 
-call compile format ["arbeitergeld%1 = 0;", _arbeiternummer];
+	_arbeiternummer   = localslavecounter;
+	localslavecounter = localslavecounter + 1;
+	localslave        = localslave + 1;
+	_slavenumber      = localslavecounter;
+	_slavename        = player;
+	_civ 		  = civslavearray select round random(count civslavearray - 1);
 
-_slavemoney = 0;
-_exitvar = 0;
-_a1 = 0;
-_action = 0;
+	call compile format [
+		'
+		_slavename = "%3" createUnit [getmarkerpos "terrorist", group player, "%1slave%2 = this; this setVehicleVarName ""%1slave%2"";liafu = true;"]; 
+		_slavename = %1slave%2;
+		_slavename setpos getmarkerpos "terrorist"
+		', rolestring, _slavenumber, _civ];
+		
 
-while {true} do
+	(format [
+	"
+		if (local server) then {
+			publicarbeiterarctionarray = publicarbeiterarctionarray + [ [%1slave%2, %3] ];
+		};
+	", rolestring, _slavenumber, player]) call broadcast;
 
-	{
+	currecciv = false;
 
-	if (_exitvar == 1) exitWith {};
+	processInitCommands;
+	liafu = true;
 
+	call compile format ["arbeitergeld%1 = 0;", _arbeiternummer];
+
+	_slavemoney = 0;
+	_exitvar = 0;
+	_a1 = 0;
+	_action = 0;
+
+	while {true} do {
+		if (_exitvar == 1) exitWith {}; 
+		
 		{
-
-		if ((player distance (_x select 0)) < (_x select 1)) then {call compile format ["arbeitergeld%1 = arbeitergeld%1 + slavemoneyprosekunde + round(random 750 - random 250);", _arbeiternummer];};
-
+			if ((player distance (_x select 0)) < (_x select 1)) then {call compile format ["arbeitergeld%1 = arbeitergeld%1 + slavemoneyprosekunde + round(random 500 - random 500);", _arbeiternummer];};
 		} forEach slavearray;
 
-	for [{_i=0}, {_i < 60}, {_i=_i+1}] do
-
-		{
-
-		if ( (not(alive _slavename)) or (not(alive player)))  exitWith {sleep 2; if(!isnull _slavename)then{hintSilent localize "STRS_slave_tot"}else{ hintSilent "A slave you owned has been set free! you are now wanted."; ["addWarrant",player,"Slavery",6000] execVM "warrant.sqf"; }; localslave = localslave - 1; deleteVehicle _slavename; _exitvar = 1;};
-
-		if ((player distance _slavename >= 5 or (call compile format ["arbeitergeld%1 == 0", _arbeiternummer])) and _a1 == 1) then {player removeaction _action; _a1 = 0;};
-
-		if (player distance _slavename < 5 and _a1 == 0 and (call compile format ["arbeitergeld%1 > 0", _arbeiternummer])) then {_action = player addaction [localize "STRS_slave_moneyaction", "slaves.sqf",["dollarz", _arbeiternummer]]; _a1 = 1;};
-
-		if (!(iscop) and ((vehicle _slavename) DISTANCE copbase1 <= 250) and (alive _slavename)) then
-
-			{
-
-			hintSilent localize "STRS_arbeiter_in_copbase";
-			if (not((vehicle _slavename) == _slavename)) then {_slavename action ["eject", (vehicle _slavename)];};
-			_slavename setpos getmarkerpos "civarea";
-
+		private["_i"];
+		
+		for [{_i=0}, {_i < 60}, {_i=_i+1}] do {
+			liafu = true;
+			if ( (not(alive _slavename)) or (not(alive player))) exitWith {
+				sleep 2; 
+				if (!isnull _slavename) then {
+					player groupChat localize "STRS_slave_tot";
+				}
+				else {
+					player groupChat "A slave you owned has been set free! you are now wanted.";
+					[player, "(human-trafficking)", slave_cost] call player_update_warrants;
+				}; 
+				localslave = localslave - 1; 
+				_slavename SETDAMAGE 1; 
+				_exitvar = 1;
 			};
 
-		sleep 1;
+			if ((player distance _slavename >= 5 or (call compile format ["arbeitergeld%1 == 0", _arbeiternummer])) and _a1 == 1) then {
+				player removeaction _action; _a1 = 0;
+			};
 
+			if (player distance _slavename < 5 and _a1 == 0 and (call compile format ["arbeitergeld%1 > 0", _arbeiternummer])) then {
+				_action = player addaction [localize "STRS_slave_moneyaction", "slaves.sqf",["money", _arbeiternummer]]; 
+				_a1 = 1;
+			};
+
+			if (not(isGov) and ((vehicle _slavename) DISTANCE copbase1 <= 250) and (alive _slavename)) then {
+				player groupChat localize "STRS_arbeiter_in_copbase";
+				if (not((vehicle _slavename) == _slavename)) then {
+					_slavename action ["eject", (vehicle _slavename)];
+				};
+				_slavename setpos getmarkerpos "civarea";
+			};
+			sleep 1;
 		};
-
 	};
 
-player removeaction _action;
-sleep 15;
-deletevehicle _slavename;
-
+	player removeaction _action;
+	sleep 15;
+	deletevehicle _slavename;
 };
 
-if (_art == "dollarz") exitWith
+if (_art == "money") exitWith {
+	_arbeiternummer = (_this select 3) select 1;
+	_arbeitergeld   = call compile format ["arbeitergeld%1;", _arbeiternummer];
 
-{
-
-_arbeiternummer = (_this select 3) select 1;
-_arbeitergeld   = call compile format ["arbeitergeld%1;", _arbeiternummer];
-
-
-if (_arbeitergeld > 0) then
-
-	{
-
-	['dollarz', _arbeitergeld] call INV_AddInventoryItem;
-	call compile format ["arbeitergeld%1 = 0;", _arbeiternummer];
-	hintSilent format [localize "STRS_slave_geldabnahme_ja", (_arbeitergeld call ISSE_str_IntToStr)];
+	if (_arbeitergeld > 0) then {
+		[player, 'money', _arbeitergeld] call INV_AddInventoryItem;
+		call compile format ["arbeitergeld%1 = 0;", _arbeiternummer];
+		player groupChat format [localize "STRS_slave_geldabnahme_ja", strM(_arbeitergeld)];
 
 	}
-
-else    {
-
-	hintSilent localize "STRS_slave_geldabnahme_nein";
-
+	else {
+		player groupChat localize "STRS_slave_geldabnahme_nein";
 	};
-
 };
 

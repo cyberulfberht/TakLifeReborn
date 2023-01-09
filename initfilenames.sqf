@@ -2,8 +2,8 @@ _initFileNames = [];
 
 {
 
-_filename = _x call INV_getitemFilename;
-_item     = _x call INV_getitemScriptName;
+_filename = _x call INV_GetItemFilename;
+_item     = _x call INV_GetItemScriptName;
 
 if ((_filename != "") and (!(_filename in _initFileNames))) then
 
@@ -14,4 +14,4 @@ if ((_filename != "") and (!(_filename in _initFileNames))) then
 
 	};
 
-} forEach INV_AlleItemsArray;
+} forEach INV_AllItemsArray;

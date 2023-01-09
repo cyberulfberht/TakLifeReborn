@@ -2,19 +2,44 @@ _art = _this select 0;
 
 if (_art == "use") then {
 	_item    = _this select 1;
-	_class	 = _item call INV_getitemClassName;
+	_class	 = _item call INV_GetItemClassName;
 	_exitvar = 0;
-	if (player != vehicle player) exitWith {hintSilent localize "STRS_inv_item_sperre_invcl";};
-	if (_exitvar == 1) exitWith {};
-	[_item, -1] call INV_AddInventoryItem;
-	_obj = _class createVehicle [0, 0, 0];
-	if( !(_class in ["M2StaticMG_US_EP1","DSHKM_TK_INS_EP1","SearchLight_US_EP1","FlagCarrierBLUFOR_EP1","FlagCarrierUNO_EP1"]) ) then {
-		_obj setVehicleInit "this enableSimulation false;";
-	} else {
-		_w = [5,"Deploying...","AinvPknlMstpSnonWrflDnon_medic","AinvPknlMstpSnonWrflDnon_medicEnd"] spawn fnc_timer;
-		waitUntil { scriptDone _w; };
+
+	if (player != vehicle player) exitWith {
+		player groupChat localize "STRS_inv_item_sperre_invcl";
 	};
-	_obj setDir getDir player;
-	_obj setPos [(position player select 0) + (sin(getDir player)*2), (position player select 1) + (cos(getDir player)*2), 0];
-	processInitCommands;
+	
+	{
+		if (player distance (_x select 0) < (_x select 1)) exitWith {
+			_exitvar = 1;
+			player groupChat localize "STRS_inv_item_sperre_hiernicht";
+		};
+	} forEach INV_SperrenVerbotArray;
+
+	if (_exitvar == 1) exitWith {};
+
+	[player, _item, -1] call INV_AddInventoryItem;
+
+	_pos = [(position player select 0) + (sin(getdir player)*2), (position player select 1) + (cos(getdir player)*2), 0];
+	_obj = createVehicle [_class, [0,0,0], [], 0, "NONE"];
+	_obj setdir getdir player;
+	_obj setpos _pos;
+	_time = round time;
+	call compile format['xorE=true; _obj setvehicleinit "this setvehiclevarname ""%1%2%3""; %1%2%3 = this; liafu = true;"; processinitcommands', player, _class, _time];
+
+	(format ["if (local server) then {publicarbeiterarctionarray = publicarbeiterarctionarray + [ [%1%2%3, %1] ];};", player, _class, _time]) call broadcast;
+
+	format['
+	if (isServer) then {
+		[] spawn {
+			_counter = 0;
+			liafu = true;
+			while{alive %1} do {
+				_counter = _counter + 1;
+				if(_counter > 3900)exitwith{deletevehicle %1;};
+				sleep 1;
+			};
+		};
+	};
+	', _obj] call broadcast;
 };

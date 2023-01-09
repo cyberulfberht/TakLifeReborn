@@ -1,34 +1,55 @@
 class Siren_Short
+
 {
-	name		= "";
-	sound[]		= {"\armitxes\sounds\siren_short.ogg", 1, 1};
-	titles[]	= {};
+
+name     = "";
+sound[]  = {"\Siren_Short.ogg", 1, 1};
+titles[] = {};
+
 };
 
-class Siren_Cop
-{
-	name		= "";
-	sound[]		= {"\armitxes\sounds\siren_police.ogg", 1, 1};
-	titles[]	= {};
-};
+class Siren_Long
 
-class Siren_EMS
 {
-	name		= "";
-	sound[]		= {"\armitxes\sounds\siren_ems.ogg", 1, 1};
-	titles[]	= {};
-};
 
-class Siren_UN
-{
-	name		= "";
-	sound[]		= {"\armitxes\sounds\siren_un.ogg", 1, 1.5};
-	titles[]	= {};
+name     = "";
+sound[]  = {"\Siren_Long.ogg", 1, 1};
+titles[] = {};
+
 };
 
 class Bank_alarm
+
 {
-	name		= "";
-	sound[]		= {"\armitxes\sounds\alarm_bank.ogg", 1, 1};
-	titles[]	= {};
+
+name     = "";
+sound[]  = {"\bankalarm.ogg", 1, 1};
+titles[] = {};
+
+};
+
+class tazer
+{
+
+name     = "";
+sound[]  = {"\Awesome\Sound\tazer.ogg", 1, 1};
+titles[] = {};
+
+};
+
+class policehorn
+{
+
+name     = "";
+sound[]  = {"\Awesome\Sound\policehorn.ogg", 1, 1};
+titles[] = {};
+
+};
+
+class wilhelm
+{
+
+name     = "";
+sound[]  = {"Awesome\Retributions\wilhelm.ogg", 1, 1};
+titles[] = {};
 };

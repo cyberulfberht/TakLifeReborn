@@ -1,5 +1,4 @@
-class RscBgFrame
-{
+class RscBgFrame {
 	type=0;
 	idc=-1;
 	style=64;
@@ -17,13 +16,22 @@ class Main
 	movingEnable=1;
 	controlsBackground[]={adminconsol_background};
 	objects[]={};
-	controls[]={adminconsol_editbox, adminconsol_playerName, adminconsol_options, adminconsol_activate, adminconsol_frame};
-
+	controls[]={adminconsol_editbox, adminconsol_playerName, adminconsol_options, adminconsol_activate, adminconsol_frame, adminplayers};
+	
+	class adminplayers:RscCombo
+	{
+		idc= 2006;
+		x=0.35;
+		y=0.15;
+		w=0.3;
+		h=0.0355555555555556;
+	};
+	
 	class adminconsol_editbox:RscEdit
 	{
 		idc=2000;
 		x=0.466666666666667;
-		y=0.142222222222222;
+		y=0.2;
 		w=0.2;
 		h=0.0355555555555556;
 	};
@@ -31,9 +39,9 @@ class Main
 	class adminconsol_playerName:RscText
 	{
 		idc=-1;
-		text="Player Name:";
+		text="Input Field:";
 		x=0.355555555555556;
-		y=0.142222222222222;
+		y=0.2;
 		w=0.0888888888888889;
 		h=0.0355555555555556;
 	};
@@ -42,18 +50,29 @@ class Main
 	{
 		idc=1000;
 		x=0.355555555555556;
-		y=0.213333333333333;
+		y=0.28;
 		w=0.311111111111111;
-		h=0.497777777777778;
+		h=0.6;
 	};
 
 	class adminconsol_activate:RscButton
 	{
 		idc=-1;
 		text="Activate Command";
-		action="[player] execVM ""adminmenuitems.sqf"";";
+		action="[player] spawn A_SCRIPT_ADMINMENUITEMS;";
 		x=0.4;
-		y=0.746666666666667;
+		y=0.9;
+		w=0.222222222222222;
+		h=0.0711111111111111;
+	};
+	
+	class coolbeans_activate:RscButton
+	{
+		idc=-1;
+		text="Activate Command";
+		action="[player] spawn A_SCRIPT_COOLMENUIT;";
+		x=0.4;
+		y=0.9;
 		w=0.222222222222222;
 		h=0.0711111111111111;
 	};
@@ -62,17 +81,17 @@ class Main
 	{
 		idc=-1;
 		x=0.288888888888889;
-		y=0.106666666666667;
+		y=0.116666666666667;
 		w=0.422222222222222;
-		h=0.746666666666667;
+		h=0.9;
 	};
 
 	class adminconsol_background:RscBackground
 	{
 		idc=-1;
 		x=0.288888888888889;
-		y=0.106666666666667;
+		y=0.116666666666667;
 		w=0.422222222222222;
-		h=0.746666666666667;
+		h=0.9;
 	};
 };

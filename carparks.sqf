@@ -2,8 +2,25 @@ INV_CanUseInventory     = true;
 INV_CanUseItem          = true;
 INV_CanDropItem         = true;
 INV_CanGiveItem         = true;
-INV_Tragfaehigkeit	= 55;
-INV_InventarArray   = [];
-INV_SteuernGezahlt	= 0;
+INV_CarryingCapacity	= 120;
 
-INV_inactive_vcl_maxtime  = 45;
+INV_TaxesPaid	= 0;
+
+INV_VehicleGaragen = [
+carpark1,
+carpark2,
+carpark3,
+carpark4
+];
+
+INV_inactive_vcl_maxtime  = 30;
+
+
+
+INV_inactive_vcl_maxtime  = 30;
+
+
+carpark1 setTriggerActivation ["VEHICLE", "PRESENT", true];
+carpark2 setTriggerActivation ["VEHICLE", "PRESENT", true];
+carpark3 setTriggerActivation ["VEHICLE", "PRESENT", true];
+carpark4 setTriggerActivation ["VEHICLE", "PRESENT", true];

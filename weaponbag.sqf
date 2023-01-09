@@ -18,16 +18,16 @@ if (vehicle player == player) then
 		deleteVehicle _x;
 		_deleted = _deleted + 1;
 
-		} forEach (player nearObjects ["weaponholder", 5]);
+		} forEach (nearestObjects [player, "weaponholder", 5]);
 
-	hintSilent format[localize "STRS_inv_items_weapondeleted", _deleted];
+	player groupChat format[localize "STRS_inv_items_weapondeleted", _deleted];
 
 	}
 	else
 	{
 
 	format ["clearWeaponCargo %1; clearMagazineCargo %1;", (vehicle player)] call broadcast;
-	hintSilent "STRS_inv_items_weaponcargocleared";
+	player groupChat "STRS_inv_items_weaponcargocleared";
 	_deleted = 1;
 
 	};
@@ -36,7 +36,7 @@ if (_deleted > 0) then
 
 	{
 
-	[_item, -(1)] call INV_AddInventoryItem;
+	[player, _item, -(1)] call INV_AddInventoryItem;
 
 	};
 

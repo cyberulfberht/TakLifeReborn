@@ -7,7 +7,7 @@ if (_art == "use") then
 _item   = _this select 1;
 _anzahl = _this select 2;
 
-hintSilent localize "STRS_inv_items_ressources";
+player groupChat localize "STRS_inv_items_ressources";
 
 };
 

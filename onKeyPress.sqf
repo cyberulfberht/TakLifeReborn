@@ -1,351 +1,783 @@
-private["_handled", "_faceCP", "_faceVP"];
+#include "Awesome\Functions\dikcodes.h"
 
-_key     = _this select 1;
-_shift   = _this select 2;
-_handled = false;
 
-afk = time;
+stunned_allowed_actions = ["Chat", "NextChannel", "PrevChannel", "ShowMap", "PushToTalkCommand", "PushToTalkDirect", "PushToTalkGroup", "PushToTalkSide", "PushToTalkVehicle", "PushToTalkAll", "PushToTalk"];
 
-if(isstunned || (([player] call plr_isUnConscious) && _key != 50)) exitWith
-{
-	if(_key == 50)then{_handled = true};
-	if(_key == 11)then{_handled = true};
-	_handled
+agony_allowed_actions = ["Chat", "NextChannel", "PrevChannel"];
+
+keyboard_get_stunned_allowed_keys = {
+	private["_keys"];
+
+	_keys = [];
+	{
+		private["_action"];
+		_action = _x;
+		_keys = _keys + (actionKeys _action);
+	} forEach stunned_allowed_actions;
+	_keys
 };
 
-switch _key do
-{
-	// Enter key
-	case 28:
+keyboard_get_agony_allowed_keys = {
+	private["_keys"];
+
+	_keys = [];
 	{
-    if(!dialog) then {
-      createDialog "chat";
-    } else {
-      _text = ctrlText 1404;
-      if(!isNil("_text")) then {
-        [_text] call ARM_fnc_betterChat;
-      };
-      closeDialog 0;
-    };
-    _handled=true;
-  };
-	//y key
-	case 21:
-	{
-  	if(dialog)exitwith{closeDialog 0;};
-  	if(!INV_shortcuts)exitwith{};
-  	_handled=true;
-  	[] execVM "animdlgopen.sqf";
-  };
-  // u key
-	case 22: {
-	if(dialog || isNil("playerPet") || isNil("petOwner") )exitwith{};
-		if(player == playerPet) exitWith {
-			if(alive petOwner) then { selectPlayer petOwner; };
+		private["_action"];
+		_action = _x;
+		_keys = _keys + (actionKeys _action);
+	} forEach agony_allowed_actions;
+	if ( time > ((player getVariable ["FA_AST", 0]) + 60)) then {
+			_keys set[count _keys, "IngamePause"];
 		};
-		if(player == petOwner) exitWith {
-			if(alive playerPet) then { selectPlayer playerPet; };
+	_keys
+};
+
+keyboard_animation_handler = {
+
+	if(!INV_shortcuts) exitWith { false };
+	if(arrested) exitWith{ false };
+	if (([player, (vehicle player)] call mounted_player_inside)) exitWith { false };
+
+	if(dialog) exitWith {closeDialog 0;};
+	[] execVM "animdlgopen.sqf";
+	true
+};
+
+keyboard_earplugs_handler = {
+	if(!INV_shortcuts) exitWith { false };
+	if (soundVolume == 1) then {
+		1 fadeSound 0.5;
+		titletext["You put earplugs in!", "PLAIN DOWN"];
+	} else {
+		1 fadeSound 1;
+		titletext["You took earplugs out!", "PLAIN DOWN"];
+	};
+	true
+};
+
+keyboard_tlr_keys_handler = {
+	if (isNil "handling_tlr_toggle") then {
+		handling_tlr_toggle = false;
+	};
+	if (handling_tlr_toggle) exitWith {titletext["TLXCOOLDOWN", "PLAIN DOWN"];};
+	
+	handling_tlr_toggle = true;
+	if (INV_shortcuts) then {
+		titletext["TLX keys off", "PLAIN DOWN"];
+		call A_actionsremove;
+		INV_shortcuts = false;
+		
+		handling_tlr_toggle = false;
+	}
+	else {
+		titletext["TLX keys on", "PLAIN DOWN"];
+		call A_actions;
+		INV_shortcuts = true;
+		
+		[] spawn {
+			homes_msg = [name player, "server", "request_homes",""];
+			publicVariable "homes_msg";
+			sleep 5;
+			handling_tlr_toggle = false;
 		};
 	};
-	//TAB key
-	case 15:
-	{
-    	if(INV_shortcuts)then{
-			INV_shortcuts=false; titletext["TKL keys off", "PLAIN DOWN"];[] execVM "actionsRemove.sqs";
-		}else{
-			INV_shortcuts=true; titletext["TKL keys on", "PLAIN DOWN"];[] execVM "actions.sqf";
-			{ player reveal _x; } forEach (nearestObjects [player,["Man","AllVehicles","Infostand_1_EP1","Infostand_2_EP1","Notebook"],10]);
-		};
+
+	
+	true
+};
+
+keyboard_lock_unlock_handler = {
+	if(!INV_shortcuts) exitWith { false };
+	private["_vcls", "_vcl"];
+	_vcls = nearestobjects [getpos player, ["LandVehicle", "Air", "ship"], 25];
+	_vcl = _vcls select 0;
+
+	if (vehicle player != player) then {
+		_vcl = vehicle player;
 	};
 
-    //L key
-  	case 38:
-  	{
-    	if(!INV_shortcuts)exitWith{};
-      if(!keyblock) then {
-      	_vcls = nearestobjects [getpos player, ["LandVehicle", "Air", "ship"], 25];
-      	_vcl = _vcls select 0;
-        _owner = _vcl getVariable "owner";
-        if((_owner select 1 == getPlayerUID player) && !(_vcl in INV_VehicleArray)) then { INV_VehicleArray = INV_VehicleArray + [_vcl]; }
-        else {
-        	if(!(_vcl in INV_VehicleArray)) exitWith { hintSilent "You do not have the keys to this vehicle."; _handled=true; };
-        	["schluessel", _vcl, 0] execVM "keys.sqf";
-        };
-      	_handled=true;
-      };
-  	};
+	if (not([player, _vcl] call vehicle_owner)) exitWith {
+		player groupchat "You do not have the keys to this vehicle.";
+		true
+	};
 
-  	//T key
-  	case 20:
-  	{
-    	if(!INV_shortcuts)exitWith{};
+	["schluessel", _vcl, 0] execVM "keys.sqf";
+	true;
+};
 
-    	if(dialog)exitWith{closeDialog 0;};
+keyboard_trunk_handler = {
+	if(!INV_shortcuts) exitWith { false };
+	if(dialog) exitWith {closeDialog 0; false };
 
-    	_vcls = nearestobjects [getpos player, ["LandVehicle", "Air", "ship", "TKOrdnanceBox_EP1"], 25];
-    	_vcl = _vcls select 0;
+	private["_vcls", "_vcl"];
+	_vcls = nearestobjects [getpos player, ["LandVehicle", "Air", "ship", "TKOrdnanceBox_EP1"], 25];
+	_vcl = _vcls select 0;
 
-    	if(!(_vcl in INV_VehicleArray) and typeof _vcl == "TKOrdnanceBox_EP1")exitWith{hintSilent "You do not have the keys to this hideout.";};
-    	if(!(_vcl in INV_VehicleArray))exitWith{hintSilent "You do not have the keys to this vehicle.";};
-    	if(!isNull _vcl)then{call compile format['[0,0,0,["%3", "public", ["vcl", "%2", %1]]] execVM "storage.sqf";', _vcl, (typeOf _vcl), format["%1_storage", _vcl]];};
-  	};
+	if !(alive _vcl) exitwith {
+			player groupchat "Vehicle is destroyed.";
+		};
 
-	//E key
-	case 18: {
-		if(!INV_shortcuts)exitWith{};
-		if(keyblock)exitWith{};
-		if(dialog)exitWith{closeDialog 0;};
-		private ["_civ"];
 
-		if (vehicle player == player) then {
-			for [{_i=1}, {_i < 3}, {_i=_i+1}] do {
-				_range = _i;
-				_dirV = vectorDir vehicle player;
-				_pos = player modelToWorld [0,0,0];
-				_posFind = [(_pos select 0)+(_dirV select 0)*_range,(_pos select 1)+(_dirV select 1)*_range,(_pos select 2)+(_dirV select 2)*_range];
-				_men    = nearestObjects [_posFind,["Man", "Infostand_1_EP1", "Infostand_2_EP1", "RUBasicAmmunitionBox", "UNBasicAmmunitionBox_EP1"], 1] - [player];
-				_atms = nearestObjects [_posFind,["Infostand_1_EP1","Misc_cargo_cont_tiny"],2];
-				_civ = _men select 0;
-				_atm = _atms select 0;
+	private["_inside_vehicle"];
+	_inside_vehicle = not((vehicle player) == player);
+	if (_inside_vehicle) exitWith {
+		player groupChat format["You must be outside the vehicle to use the trunk"];
+	};
 
-				if(iscop && !(isNull _civ) && _civ in playerarray) exitWith {
-					_i = 4;
-					call compile format['[0,0,0, ["civmenu", "%1", %1]] execVM "interact.sqf";', _civ];
-					_handled=true;
-				};
+	private["_vehicle"];
+	_vehicle = cursorTarget;
+	if (isNil "_vehicle") exitWith {false};
+	if (typeName _vehicle != "OBJECT") exitWith {false};
+	if (not(_vehicle isKindOf "LandVehicle" || _vehicle isKindOf "Air" || _vehicle iskindOf "Ship" || _vehicle isKindOf "TKOrdnanceBox_EP1")) exitWith {false};
 
-				if(isun && !(isNull _civ) && _civ in playerarray) exitWith {
-					_i = 4;
-					call compile format['[0,0,0, ["uninteraktion", "%1", %1]] execVM "interact.sqf";', _civ];
-					_handled=true;
-				};
+	private["_distance"];
+	_distance = _vehicle distance player;;
+	if (_distance > 10 ) exitWith {false};
+	if (_distance > 5 ) exitWith {
+		player groupChat format["You need to be closer to the vehicle to use the trunk"];
+	};
 
-				if(isciv && !(isNull _civ) && _civ in playerarray) exitWith {
-					_i = 4;
-					call compile format['[0,0,0, ["civinteraktion", "%1", %1]] execVM "interact.sqf";', _civ];
-					_handled=true;
-				};
 
-				if(!(isnull _civ) && _civ in shopusearray) exitWith {
-					_i = 4;
-					if((iscop || isun) and _civ in drugsellarray)exitWith{_civ execVM "drugsearch.sqf"};
-					_id = _civ call INV_getshopnum;
-					[0,0,0,[_id]] execVM "shopdialogs.sqf";
-					_handled=true;
-				};
 
-				if(!(isNull _atm) and _atm in bankflagarray) exitWith {
-					_i = 4;
-					if (time_bank_lockout > time) exitWith { hint "The ATM rejected your card"; };
-					[] execVM "atm.sqf";
-					_handled=true;
-				};
+	if(not([player, _vehicle] call vehicle_owner)) exitWith {
+		player groupchat "You do not have the keys to this vehicle.";
+		false
+	};
 
+	if (([_vehicle] call trunk_in_use)) exitWith {
+		player groupChat format["This vehicle's trunk is being used by %1", ([_vehicle] call trunk_user)];
+		false
+	};
+
+	[_vehicle] call trunk_open;
+	[player, _vehicle] call interact_vehicle_storage_menu;
+	true
+};
+
+keyboard_stunned_check = {
+	[player, "isstunned"] call player_get_bool
+};
+
+keyboard_restrained_check = {
+	//if (isGov) exitWith {false};
+	[player, "restrained"] call player_get_bool
+};
+
+keyboard_agony_check = {
+		player getVariable ["FA_inAgony", false];
+	};
+
+
+keyboard_interact_handler = {
+	private["_ctrl"];
+	_ctrl = _this select 0;
+
+	if (!INV_shortcuts) exitWith {false};
+	if (keyblock) exitWith {false};
+	if (dialog ) exitWith {closeDialog 0; false};
+	if (arrested) exitWith{ false };
+
+	private ["_civ", "_handled", "_i"];
+
+	//INTERACTIONS WITH PLAYERS, AI, ATM
+	for [{_i=1}, {_i < 3}, {_i=_i+1}] do {
+		if(vehicle player != player) exitWith {false};
+		_range = _i;
+		_dirV = vectorDir vehicle player;
+		_pos = player modelToWorld [0,0,0];
+		_posFind = [(_pos select 0)+(_dirV select 0)*_range,(_pos select 1)+(_dirV select 1)*_range,(_pos select 2)+(_dirV select 2)*_range];
+		_men    = nearestObjects [_posFind,["Man", "RUBasicAmmunitionBox", "UNBasicAmmunitionBox_EP1", "BarrelBase", "Barrels", "Infostand_1_EP1", "Infostand_2_EP1"], 1] - [player];
+		_atms   = nearestObjects [_posFind,["Man", "Misc_cargo_cont_tiny", "BarrelBase", "Barrels"],2];
+		_civ    = _men select 0;
+		_atm	= _atms select 0;
+
+		_handled = [player, _atm] call interact_atm;
+		if (_handled) exitWith {};
+
+		_handled = [player, _civ] call interact_human;
+		if (_handled) exitWith {};
+
+		_handled = [player, _civ] call interact_ai;
+		if (_handled) exitWith {};
+	};
+
+	if(_handled) exitWith { true };
+
+	//INTERACTIONS WITH VEHICLES
+	private["_player_inside"];
+	_player_inside = [player, (vehicle player)] call mounted_player_inside;
+	//player groupChat format["_player_inside = %1", _player_inside];
+	if (not(_player_inside) && not(_ctrl)) exitWith {
+		private ["_vcl"];
+		for [{_i=1}, {_i < 3}, {_i=_i+1}] do {
+			_range = _i;
+			_dirV = vectorDir vehicle player;
+			_pos = player modelToWorld [0,0,0];
+			_posFind = [(_pos select 0)+(_dirV select 0)*_range,(_pos select 1)+(_dirV select 1)*_range,(_pos select 2)+(_dirV select 2)*_range];
+			_vcls    = nearestobjects [_posFind,["LandVehicle", "Air", "ship"], 5];
+			_vcl     = _vcls select 0;
+			if(not(isnull _vcl)) exitWith {_i = 4};
+		};
+
+		if(locked _vcl) exitWith { false };
+
+		private["_entered"];
+		_entered = [player, _vcl, false] call player_enter_vehicle;
+
+		if (_entered) exitWith {
+			 [] spawn {
+				keyblock=true;
+				sleep 1;
+				keyblock=false;
+			};
+			true
+		};
+		false
+	};
+
+
+	_vcl  = vehicle player;
+
+	if(_vcl != player) exitWith {
+		if(locked _vcl) exitWith {
+			player groupchat "The vehicle is locked. Disembark by pressing Control + E";
+			false
+		};
+		if(speed _vcl > 30) exitWith {
+			player groupchat "The vehicle is moving too fast";
+			false
+		};
+		[player, _vcl, false] call player_exit_vehicle;
+		true
+	};
+
+	true
+};
+
+keyboard_breakout_vehicle_handler = {
+	private["_ctrl"];
+	_ctrl = _this select 0;
+	if(!_ctrl) exitWith {false};
+	if(!INV_shortcuts) exitWith {false};
+	if (keyblock) exitWith {false};
+	[player, (vehicle player)] spawn interact_vehicle_breakout;
+	true
+};
+
+keyboard_cop_siren_handler = {
+	if(!INV_shortcuts) exitWith {false};
+	private["_isDriver"];
+	_isDriver = (driver(vehicle player) == player);
+	if (not(_isDriver)) exitWith { false };
+	[0,0,0,["activate"]] execVM "siren.sqf";
+	true
+};
+
+keyboard_stun_handler = {
+	if(!INV_shortcuts) exitWith {false};
+	player setVariable ["armed", true];
+	[3, player] execVM "Awesome\Scripts\Stun.sqf";
+	true
+};
+
+keyboard_cop_horn_handler = {
+	if(!INV_shortcuts) exitWith {false};
+	private["_isDriver"];
+	_isDriver = (driver(vehicle player) == player);
+	if (not(_isDriver)) exitWith { false };
+	[0,0,0,["activate"]] execVM "Awesome\Scripts\policehorn.sqf";
+	true
+};
+
+keyboard_main_dialog_handler = {
+	if(!INV_shortcuts) exitWith {false};
+	if(dialog) exitWith {closeDialog 0; false };
+	[0,0,0,["spielerliste"]] execVM "maindialogs.sqf";
+	true
+};
+
+keyboard_inventory_dialog_handler = {
+	if(!INV_shortcuts) exitWith {false};
+	if(dialog) exitWith {closeDialog 0; false};
+	[player] spawn interact_inventory_menu;
+	true
+};
+
+keyboard_retributions_handler = {
+	if(!INV_shortcuts) exitWith {false};
+	if(dialog) exitWith {closeDialog 0; false};
+	["open"] spawn retributions_main;
+	true
+};
+
+keyboard_surrender_handler = {
+	if(!INV_shortcuts) exitWith {false};
+	if(keyblock || vehicle player != player) exitWith {false};
+	keyblock=true; [] spawn {
+		sleep 2;
+		keyblock=false;
+	};
+	player playmove "amovpercmstpssurwnondnon";
+	true;
+};
+
+keyboard_switch_normal_handler = {
+	if(!INV_shortcuts) exitWith {false};
+	if(keyblock) exitWith {false};
+	keyblock=true;
+	[] spawn {
+		sleep 2;
+		keyblock=false;
+	};
+	format ["%1 switchmove ""%2"";", player, "normal"] call broadcast;
+	true
+};
+
+keyboard_gangs_handler = {
+	if(!INV_shortcuts) exitWith {false};
+	if(dialog) exitWith {closeDialog 0; false};
+	if (not(isCiv) || isIns || isOpf) exitWith {false};
+	[0,0,0,["gangmenu"]] execVM "maindialogs.sqf";
+	true
+};
+keyboard_squads_handler = {
+	if(!INV_shortcuts) exitWith {false};
+	if(dialog) exitWith {closeDialog 0; false};
+	if (not(isBlu) || isIns || isOpf) exitWith {false};
+	[0,0,0,["squadmenu"]] execVM "maindialogs.sqf";
+	true
+};
+
+keyboard_admin_menu_handler = {
+	if(!INV_shortcuts) exitWith {false};
+	if(dialog) exitWith {closeDialog 0; false};
+	if (!isStaff) exitWith {false};
+	[player] execVM "adminconsolfill.sqf";
+	//[player] spawn { _this call stBegin; };
+	createDialog "Main";
+	true
+};
+
+keyboard_cop_menu_handler = {
+	if(!INV_shortcuts) exitWith {false};
+	if(dialog) exitWith {closeDialog 0; false};
+	if (not(isGov)) exitWith {false};
+	if ([player] call player_get_dead) exitWith {};
+
+	private["_inVehicle"];
+	_inVehicle = (vehicle player != player);
+
+	if (not(_inVehicle)) then {
+		[0,0,0,["copmenulite"]] execVM "maindialogs.sqf";
+	}
+	else {
+		[0,0,0,["copmenu"]] execVM "maindialogs.sqf";
+	};
+
+	true
+};
+
+
+keyboard_an2_faster_handler = {
+	private["_vcl", "_lvl", "_vel", "_spd"];
+	_vcl = vehicle player;
+
+	if (not(_vcl iskindof "An2_Base_EP1")) exitWith { false };
+
+	_vel = velocity _vcl;
+	_spd = speed _vcl;
+	_vcl setVelocity [(_vel select 0) * 1.001, (_vel select 1) * 1.001, (_vel select 2) * 0.99];
+
+	false
+};
+
+
+keyboard_forward_tuning_handler = {
+	private["_vcl", "_lvl", "_vel", "_spd"];
+	_vcl = vehicle player;
+
+	if (not(isEngineOn _vcl)) exitWith { false };
+
+	if(_vcl iskindof "Motorcycle") then {
+		_vel = velocity _vcl;
+		_spd = speed _vcl;
+		_vcl setVelocity [(_vel select 0) * 1.001, (_vel select 1) * 1.001, (_vel select 2) * 0.99];
+	};
+
+	_lvl = 0;
+	_lvl = _vcl getvariable ["tuning", 0];
+	if (_lvl == 0) exitWith {false};
+
+	if( _vcl iskindof "LandVehicle") then {
+		_vel = velocity _vcl;
+		_spd = speed _vcl;
+		switch _lvl do {
+			case 1: {
+				_vcl setVelocity [(_vel select 0) * 1.002, (_vel select 1) * 1.002, (_vel select 2) * 0.99];
+			};
+			case 2: {
+				_vcl setVelocity [(_vel select 0) * 1.004, (_vel select 1) * 1.004, (_vel select 2) * 0.99];
+			};
+			case 3: {
+				_vcl setVelocity [(_vel select 0) * 1.006, (_vel select 1) * 1.006, (_vel select 2) * 0.99];
+			};
+			case 4: {
+				_vcl setVelocity [(_vel select 0) * 1.008, (_vel select 1) * 1.008, (_vel select 2) * 0.99];
+			};
+			case 5: {
+				_vcl setVelocity [(_vel select 0) * 1.009, (_vel select 1) * 1.009, (_vel select 2) * 0.99];
 			};
 		};
-		if(_handled)exitWith{};
+	};
 
-		if(vehicle player == player) then {
-			private ["_vcl"];
-			for [{_i=1}, {_i < 3}, {_i=_i+1}] do {
-				_range = _i;
-				_dirV = vectorDir vehicle player;
-				_pos = player modelToWorld [0,0,0];
-				_posFind = [(_pos select 0)+(_dirV select 0)*_range,(_pos select 1)+(_dirV select 1)*_range,(_pos select 2)+(_dirV select 2)*_range];
-				_vcls    = nearestobjects [_posFind,["LandVehicle", "Air", "ship"], 2];
-				_vcl     = _vcls select 0;
-				if(!(isnull _vcl))exitwith{_i = 4};
-			};
+	false
+};
 
-			if(locked _vcl)exitWith{ hintSilent "The vehicle is locked."; };
+keyboard_vehicle_nitro_handler = {
+	private["_nos", "_vcl", "_spd", "_vel"];
+	_vcl = vehicle player;
 
-			if(player isKindOf "Animal" && !(isnull _vcl)) then {
-				if (!attached) then {
-					attached = true;
-					player attachTo [_vcl,[0,0,-1]];
-				} else {
-					if(speed _vcl < 20) then {
-						attached = false;
-						detach player;
-						_apos = getPos player;
-						player setPos [(_apos select 0)+4, (_apos select 1)+4, 0];
-					} else { hintSilent "The vehicle is moving too fast"; };
+	_nos = 0;
+	_nos = _vcl getvariable ["nitro", 0];
+	if (_nos == 0) exitWith { false };
+	if (not(isEngineOn _vcl)) exitWith { false };
+
+	_vel  = velocity _vcl;
+	_spd  = speed _vcl;
+	_fuel = fuel _vcl;
+	_vcl setVelocity [(_vel select 0) * 1.01, (_vel select 1) * 1.01, (_vel select 2) * 0.99];
+	_vcl setfuel (_fuel - 0.0003);
+	//player groupChat format["_fuel = %1", _fuel];
+	false
+};
+
+keyboard_cop_speed_gun_handler = {
+	if(!INV_shortcuts) exitWith {false};
+	[] spawn SpeedGun_init;
+	true
+};
+
+keyboard_gear_button_handler = {
+	if (debug) then {
+		player groupChat "Debug Gear Save run";
+	};
+	if(isNil "esc_ctr") then {
+				esc_ctr = 15;
+			}
+			else {
+				if (esc_ctr > 0) exitWith {
+					_handled = false;
 				};
-			} else {
-				if (_vcl isKindOf "StaticWeapon") then { player moveInGunner _vcl; } else {
-					if(_vcl emptyPositions "Driver" > 0) exitWith {player action ["getInDriver", _vcl]};
-					if(_vcl emptyPositions "Gunner" > 0) exitWith {player action ["getInGunner", _vcl]};
-					if(_vcl emptyPositions "Commander" > 0) exitWith {player action ["getInCommander", _vcl]};
-					if(_vcl emptyPositions "Cargo" > 0) exitWith {player action ["getInDriver", _vcl]; _vcl spawn {keyblock=true;sleep 0.5;player moveincargo _this; keyblock=false;};};
-				};
-			};
-		} else {
-			_vcl  = vehicle player;
-			if(locked _vcl)exitWith{hintSilent "The vehicle is locked."};
-			if(speed _vcl > 30)exitWith{hintSilent "The vehicle is moving too fast"};
-			player action ["getOut", _vcl];
-		};
-	};
-
-	//R key
-	case 19: {
-	if(!INV_shortcuts)exitWith{};
-		if(_shift && (vehicle player == player) && (count (magazines player) < 12)) then
-		{
-			player addMagazine "HandGrenade_Stone";
-			titleText ["I picked up a stone!", "PLAIN DOWN", 0.5];
-		};
-	};
-
-	//F key
-	case 33: {
-		if (_shift and (vehicle player != player)) then { ["switch"] execVM "armitxes\events\onSiren.sqf"; };
-		if(!INV_shortcuts)exitwith{};
-
-		if(_shift and (vehicle player == player) and call INV_isArmed) then {
-			if(keyblock)exitwith{};
-			_men = nearestobjects [getpos player, ["Man"], 2] - [player];
-			_men spawn {
-				(format ["%1 switchmove ""%2"";", player, "AwopPercMstpSgthWnonDnon_end"]) call toClients;
-				sleep 0.2;
-				if(count _this > 0) then {
-					_civ = _this select 0;
-					if((_civ distance player) > 2 || (!isPlayer _civ) || ([_civ] call plr_isUnConscious))exitWith{};
-					(format ["if (player == %1) then {[""hit"", %2, ""Melee"", 1] execVM ""stun.sqf""};", _civ, player]) call toClients;
-					hintSilent "You stunned this player!";
-					keyblock=true; [] spawn {sleep 2; keyblock=false;};
-				};
-			};
-			_handled=true;
-		};
-	};
-
-	//tilde key
-	case 41: {
-		if(!INV_shortcuts)exitWith{};
-		if(dialog)exitwith{closeDialog 0;_handled=true;};
-		if(iscop || isun) then {
-			if(vehicle player == player)then{ if(iscop) then { [0,0,0,["copmenulite"]] execVM "maindialogs.sqf"; }; }
-			else {[0,0,0,["copmenu"]] execVM "maindialogs.sqf";};
-			_handled=true;
-		};
-	};
-
-	//1 key
-	case 2: {
-	    if(!INV_shortcuts)exitwith{};
-	    _handled=true;
-	    if(dialog)exitWith{closeDialog 0;};
-	    call fnc_ClearWarrantsArray;
-	    if (_shift) then { [0,0,0,["generalstats"]] execVM "maindialogs.sqf"; } else { [0,0,0,["spielerliste"]] execVM "maindialogs.sqf"; };
-	};
-
-	//2 key
-	case 3: {
-		if(!INV_shortcuts)exitwith{};
-		_handled=true;
-		if(dialog)exitwith{closeDialog 0;};
-		execVM "inventory.sqf";
-	};
-
-	//3 key
-	case 4: {
-		if(!INV_shortcuts)exitwith{};
-		if(keyblock or vehicle player != player)exitwith{};
-		keyblock=true; [] spawn {sleep 2; keyblock=false;};
-		player playmove "amovpercmstpssurwnondnon";
-		_handled=true;
-	};
-
-	//4 key
-	case 5: { [0,0,0,["constitution"]] execVM "maindialogs.sqf"; };
-
-	//5 key
-	case 6: {
-		if (isciv) then {
-			if(!INV_shortcuts)exitWith{};
-			_handled=true;
-			if(dialog)exitWith{closeDialog 0;};
-			[0,0,0,["gangmenu"]] execVM "maindialogs.sqf";
-		};
-	};
-
-   //6 key
-	case 7: {
-		if (!isciv) then {
-			if(!INV_shortcuts)exitwith{};
-			_handled=true;
-			if(dialog)exitwith{closeDialog 0;};
-			[0,0,0,["coplog"]] execVM "maindialogs.sqf";
-		};
-	};
-	// M key
-	case 50: {
-		_handled=true;
-		if(!INV_shortcuts || isciv)exitwith{};
-		_array = coptypes;
-		_playerType = typeOf player;
-		if(isun) then {_array = untypes;};
-		{
-			_markerName = format ["marker_%1",_x];
-			if (getMarkerColor _markerName != "") then {deleteMarkerLocal _markerName;};
-			if((typeOf _x) in _array) then {
-				_markerlocation = position _x;
-				_markerobj = createMarkerLocal [_markerName,_markerlocation];
-				_markerobj setMarkerShapeLocal "Icon";
-				_markerName setMarkerTypeLocal "dot";
-				_markerName setMarkerColorLocal "coloryellow";
-			};
-		} forEach playableUnits;
-	};
-	// Space
-	case 57: {
-		if(!INV_shortcuts)exitwith{};
-		_handled=true;
-		if(player isKindOf "Animal") then {
-			_targets = (nearestObjects [player,["Man"],5])-[player];
-			if(count(_targets) > 0 && lastBite+3 < time) then {
-				lastBite = time;
-				_target = _targets select 0;
-				if ((player distance _target) < 3) then {
-					if((damage _target) == 0) then {
-						_target setHit ["hands",1];
-						_target setDamage 0.2;
-					} else {
-						if (canStand _target) then { _target setHit ["legs",1]; } else {
-							if(!(alive _target)) exitWith {};
-							_toDeath = ["civillying01","adthpercmstpslowwrfldnon_4","adthppnemstpsraswpstdnon_2"];
-							if ( (!dragging && (animationState _target in _toDeath)) || !isPlayer _target ) then {
-								_target setDamage 1;
-								(format["server globalchat ""%1 bit %2 to death."";", name player, name _target]) call toClients;
-							} else {
-								(format ["if (player == %1) then {[""hit"", %2, ""Melee"", 1] execVM ""stun.sqf""};", _target, petOwner]) call toClients;
-							};
-						};
+				[] spawn { call onActionSaver;};
+				esc_ctr = 15;
+				[] spawn {
+					while { esc_ctr > 0} do {
+						sleep 1;
+						esc_ctr = esc_ctr - 1;
 					};
 				};
 			};
-		} else {
-			if((iscop) and (vehicle player != player)) exitwith { player commandChat format ["Speedcam: %1 km/h", speed cursorTarget]; };
-			if((iscop || isun) and (vehicle player == player)) exitwith {
-				_targ = (cursorTarget);
-				if(_targ != vehicle _targ) then {hint "No target selected.";} else {
-					if (_targ iskindof "man") then {
-						for [{_i=0}, {_i <= (count warrantarray)}, {_i=_i+1}] do {
-							_singleWarrant = warrantarray select _i;
-							_pIdCiv  = _singleWarrant select 0;
-							_pReason = _singleWarrant select 1;
-							_pBounty = _singleWarrant select 2;
-
-							if(_targ == _pIdCiv) exitWith {
-								hintSilent format ["%1(%4) (Bounty: %3) (Reason: %2)", _pIdCiv, _pReason, _pBounty, name _pIdCiv];
-							};
-						};
-					} else {hint "No player selected."};
-				};
-			};
-		};
-	};
+	true
 };
 
-_handled;
+keyboard_overlapping_actions = ["LeanLeft", "LeanLeftToggle", "LeanRight",  "LeanRightToggle"];
+keyboard_overlapping_keys = [219];//heliextras
+{
+	private["_action"];
+	_action = _x;
+	keyboard_overlapping_keys = keyboard_overlapping_keys + (actionKeys _action);
+} foreach keyboard_overlapping_actions;
+
+keyboard_adminCheck = {(_this select 0) == DIK_F12};
+
+
+KeyUp_handler = {
+	private["_handled", "_disp", "_key", "_shift", "_ctrl", "_alt"];
+
+	_disp	= _this select 0;
+	_key    = _this select 1;
+	_shift  = _this select 2;
+	_ctrl	= _this select 3;
+	_alt	= _this select 4;
+
+	//afkTime = time;
+
+	_handled = false;
+
+
+	if (voice_stop) exitWith {
+		true
+	};
+	if (_key in(actionKeys "LookAround")) then {
+		lookingAround = false;
+	};
+
+	if (((call keyboard_stunned_check) || (call keyboard_restrained_check)) && !([_key] call keyboard_adminCheck)) exitWith {
+		//player groupChat "Stun checker run";
+		!(_key in (call keyboard_get_stunned_allowed_keys))
+	};
+	if (call keyboard_agony_check && !([_key] call keyboard_adminCheck)) exitwith {
+		!(_key in (call keyboard_get_agony_allowed_keys))
+	};
+	//Fix for exploit using cross-arms animation, that allows players to glitch through walls
+	if ((animationState player) == "shaftoe_c0briefing_otazky_loop6") then {
+		player setPosATL (player getVariable "animation_position");
+	};
+
+	private["_inVehicle"];
+	_inVehicle = ((vehicle player) != player);
+
+	switch _key do {
+		case DIK_F4: {
+			if(_alt) exitWith { player groupChat "No rage quitting allowed you n00b"; _handled = false; };
+		};
+		case DIK_Y: {
+				_handled = [] call keyboard_animation_handler;
+		};
+		case DIK_TAB: {
+			_handled = [] call keyboard_tlr_keys_handler;
+		};
+		case DIK_ESCAPE: {
+			_handled = [] call keyboard_gear_button_handler;
+		};
+		case DIK_G: {
+			if (_inVehicle) exitWith {_handled=false;};
+			_handled = [] call keyboard_gear_button_handler;
+		};
+		case DIK_T: {
+			_handled = [] call keyboard_trunk_handler;
+		};
+		case DIK_E: {
+				_handled = [_ctrl] call keyboard_breakout_vehicle_handler;
+				_handled = [_ctrl] call keyboard_interact_handler;
+			};
+		case DIK_GRAVE: {
+			_handled = [] call keyboard_cop_menu_handler;
+		};
+		case DIK_1: {
+			_handled = [] call keyboard_main_dialog_handler;
+		};
+		case DIK_2: {
+			_handled = [] call keyboard_inventory_dialog_handler;
+		};
+		case DIK_3: {
+			if (_inVehicle) exitWith {_handled=false;};
+			_handled = [] call keyboard_surrender_handler;
+		};
+		case DIK_4: {
+			if (_inVehicle) exitWith {_handled=false;};
+			_handled = [] call keyboard_switch_normal_handler;
+		};
+		case DIK_5: {
+			if(isCiv) then{
+				_handled = [] call keyboard_gangs_handler;
+			};
+			if(isBlu) then{
+				_handled = [] call keyboard_squads_handler;
+			};
+		};
+		case DIK_6: {
+			_handled = [] call keyboard_retributions_handler;
+		};
+		case DIK_7: {
+			_handled = [] call keyboard_earplugs_handler;
+		};
+		case DIK_SPACE:	{
+				if (not(_ctrl)) exitWith {_handled = false;};
+				_handled = [] call keyboard_lock_unlock_handler;
+		};
+
+		case DIK_F12:{
+			if (not(_ctrl)) exitWith {_handled = false;};
+			_handled = [] call keyboard_admin_menu_handler;
+		};
+
+		case DIK_L:	{
+			_handled = [] call keyboard_lock_unlock_handler;
+		};
+
+		case DIK_F:
+		{
+		_only_cop_car_classes = ["UAZ_UNARMED_UN_EP1","LadaLM"];
+
+			if (not(_ctrl)) exitWith {_handled = false;};
+
+			if(_inVehicle) then
+			{
+				if (isGov) then
+				{
+					_handled = [] call keyboard_cop_siren_handler;
+				}
+				else
+				{
+					// not a cop or opfor
+					// sirens on stolen cop vehicles only
+
+					_vehicle_class = typeOf (vehicle player);
+					if (_vehicle_class  in _only_cop_car_classes) then
+					{
+						_handled = [] call keyboard_cop_siren_handler;
+					};
+				};
+
+			}
+			else // not in vehicle
+			{
+				_handled = [] call keyboard_stun_handler;
+			};
+		};
+
+	}; //end of switch key
+	if (_inVehicle && _key == DIK_E) exitWith {
+		_inVehicle
+	};
+
+	if (_key in keyboard_overlapping_keys) exitWith {
+		false;
+	};
+
+	_handled
+};
+
+
+
+lookingAround = false;
+KeyDown_handler = {
+	//player groupChat format["KeyDown_handler %1", _this];
+	private["_handled"];
+	_handled = false;
+
+	_disp	= _this select 0;
+	_key    = _this select 1;
+	_shift  = _this select 2;
+	_ctrl	= _this select 3;
+	_alt	= _this select 4;
+
+	if (voice_stop) exitWith {
+		true
+	};
+
+	if (_key in(actionKeys "LookAround")) then {
+		lookingAround = true;
+	};
+
+	if (((call keyboard_stunned_check) || (call keyboard_restrained_check)) && !([_key] call keyboard_adminCheck)) exitWith {
+		!(_key in (call keyboard_get_stunned_allowed_keys))
+	};
+
+	if (call keyboard_agony_check && !([_key] call keyboard_adminCheck)) exitwith {
+		!(_key in (call keyboard_get_agony_allowed_keys))
+	};
+
+	//Fix for exploit using cross-arms animation, that allows players to glitch through walls
+	if ((animationState player) == "shaftoe_c0briefing_otazky_loop6") then {
+		player setPosATL (player getVariable "animation_position");
+	};
+
+	private["_inVehicle", "_isDriver"];
+	_inVehicle = ((vehicle player) != player);
+	_isDriver = ((driver (vehicle player)) == player);
+
+	switch _key do {
+		case DIK_F4: {
+			if(_alt) exitWith { _handled = false };
+		};
+		case DIK_Y: {
+			_handled = INV_shortcuts;
+		};
+		case DIK_TAB: {
+			_handled = INV_shortcuts;
+		};
+		case DIK_T: {
+			_handled = INV_shortcuts;
+		};
+		case DIK_E: {
+			_handled = INV_shortcuts;
+		};
+		case DIK_GRAVE: {
+			_handled = INV_shortcuts;
+		};
+		case DIK_1: {
+			_handled = INV_shortcuts;
+		};
+		case DIK_2: {
+			_handled = INV_shortcuts;
+		};
+		case DIK_3: {
+			_handled = INV_shortcuts;
+		};
+		case DIK_4: {
+			_handled = INV_shortcuts;
+		};
+		case DIK_5: {
+			_handled = INV_shortcuts;
+		};
+		case DIK_6: {
+			_handled = INV_shortcuts;
+		};
+		case DIK_U:{
+			_handled = INV_shortcuts;
+		};
+
+		case DIK_L:	{
+			_handled = INV_shortcuts;
+			//_handled = [] call keyboard_lock_unlock_handler;
+		};
+
+		case DIK_V: {
+			if (not(_ctrl)) exitWith {_handled = false;};
+			if (!(isGov)) exitWith {_handled = false;};
+			_handled = [] call keyboard_cop_speed_gun_handler;
+		};
+
+		case DIK_H: {
+			if (not(_ctrl)) exitWith {_handled = false;};
+			if (not((isGov) && _inVehicle && _isDriver)) exitWith {_handled = false;};
+			_handled = [] call keyboard_cop_horn_handler;
+		};
+
+		case DIK_W: {
+			if(!_inVehicle) exitWith { false };
+			_handled = [] call keyboard_forward_tuning_handler;
+		};
+
+		case DIK_Q: {
+			if(!_inVehicle) exitWith { false };
+			_handled = [] call keyboard_an2_faster_handler;
+		};
+
+		case DIK_LSHIFT: {
+			if(!_inVehicle) exitWith { false };
+			_handled = [] call keyboard_vehicle_nitro_handler;
+		};
+	};
+
+
+	if (_inVehicle && _key == DIK_E) exitWith {
+		_inVehicle
+	};
+
+	if (_key in keyboard_overlapping_keys) exitWith {
+		//player globalChat "overlapping key";
+		false
+	};
+
+	_handled
+};
+
+
+keyboard_setup = {
+	disableSerialization;
+	private["_display"];
+	_display = nil;
+	waituntil {
+		_display = findDisplay 46;
+		if (isNil "_display") exitWith {false};
+		if (isNull _display) exitWith {false};
+		true
+	};
+	_display displayAddEventHandler ["KeyDown", "_this call KeyDown_handler"];
+	_display displayAddEventHandler ["KeyUp", "_this call KeyUp_handler"];
+};
+
+call keyboard_setup;

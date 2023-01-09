@@ -1,56 +1,81 @@
-ISSE_pub_varCount = _this select 0;
-ISSE_pub_varNum   = _this select 1;
-ISSE_pub_varName  = format["ISSE_pub_Pstr_%1", ISSE_pub_varNum];
+broadcast_make_key = {
+	private["_id"];
+	_id = _this select 0;
+	if (isNil "_id") exitWith {};
+	if (typeName _id != "SCALAR") exitWith{};
+	format["dnicepub_Pstr_%1",_id];
+};
 
-for [{_i=0}, {_i <= (ISSE_pub_varCount)}, {_i=_i+1}] do
-
-{
-
-_varName = format["ISSE_pub_Pstr_%1", _i];
-call compile format['%1 = " ";', _varName];
-_varName addPublicVariableEventHandler {call compile (_this select 1);};
-
+broadcast_receive = {
+	private["_value"];
+	_code = _this select 1;
+	if (isNil "_code") exitWith{};
+	if (typeName _code != "STRING") exitWith {};
+	/*if(isServer) then {
+		diag_log format ["RECEIVED BROADCASTED: %1", _code];
+	};*/
+	call compile _code;
 };
 
 broadcast = {
-  if ((TypeName _this) == "STRING") then
-  {
-    call compile format['%1 = ''%2'';', ISSE_pub_varName, _this];
-    publicVariable ISSE_pub_varName;
-    call compile _this;
-  } else { hint "Public Error: expecting String."; };
+	private["_code"];
+	_code = _this;
+	if (isNil "_code") exitWith {};
+	if (typeName _code != "STRING") exitWith {};
+	
+	/*if(isServer) then {
+		diag_log format ["SENT BROADCASTED: %1", _code];
+	};*/
+	
+	missionNamespace setVariable [player_broadcast_buffer, _code];
+	publicVariable player_broadcast_buffer;
+	call compile _code;
 };
 
-
-toClients = {
-  if(isDedicated) exitwith {};
-  if ((TypeName _this) == "STRING") then
-  {
-    call compile format['%1 = ''%2'';', ISSE_pub_varName, _this];
-    publicVariable ISSE_pub_varName;
-    call compile _this;
-  } else { hint "Public Error: expecting String."; };
+broadcast_server = {
+	private["_code"];
+	_code = _this;
+	if (isNil "_code") exitWith {};
+	if (typeName _code != "STRING") exitWith {};
+	missionNamespace setVariable [player_broadcast_buffer, _code];
+	publicVariableServer player_broadcast_buffer;
 };
-  
-broadcast_civ =
-{
-	if(iscop) exitwith {};
-		if ((TypeName _this) == "STRING") then
-		{
-			call compile format['%1 = ''%2'';', ISSE_pub_varName, _this];
-			publicVariable ISSE_pub_varName;
-			call compile _this;
-		}
-		else
-		{
-			hint "Public Error: expecting String.";
-		};
+
+broadcast_client = {
+	private["_code", "_client"];
+	_code = _this select 0;
+	_client = _this select 1;
+	if (isNil "_code") exitWith {};
+	if (typeName _code != "STRING") exitWith {};
+	if ((typeName _client) == "OBJECT") then {_client = owner _client};
+	if ((typeName _client) != "SCALAR") exitwith {};
+	missionNamespace setVariable [player_broadcast_buffer, _code];
+	_client publicVariableClient player_broadcast_buffer;
+};
+
+broadcast_setup = {
+	private["_player_number", "_player_count"];
+	
+	_player_number = _this select 0;
+	_player_count = _this select 1;
+	
+	if (isNil "_player_number") exitWith {};
+	if (isNil "_player_count") exitWith {};
+	if (typeName _player_number != "SCALAR") exitWith {};
+	if (typeName _player_count != "SCALAR") exitWith {};
+	
+	
+	player_broadcast_buffer = [_player_number] call broadcast_make_key;
+	
+	private["_i"];
+	_i = 0;
+	while { _i < _player_count } do {
+		private["_variable_name"];
+		_variable_name = [_i] call broadcast_make_key;
+		missionNamespace setVariable [_variable_name, ""];
+		_variable_name addPublicVariableEventHandler { _this call broadcast_receive;};
+		_i = _i + 1;
 	};
-
-ISSE_pub_execStr =
-
-{
-
-if ((TypeName _this) == "STRING") then {call compile _this;} else {hint "Public Error: expecting String.";};
-
 };
+
+[rolenumber, (count PlayerStringArray)] call broadcast_setup;

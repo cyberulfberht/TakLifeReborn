@@ -1,129 +1,143 @@
-_a1 = 0;
-_a2 = 0;
-_a3 = 0;
-_a4 = 0;
-_h1 = 0;
-_h2 = 0;
-_h3 = 0;
-_h3 = 0;
-_h4 = 0;
-_f1 = 0;
-_f2 = 0;
-_f3 = 0;
+#include "Awesome\Functions\macro.h"
 
+private ["_counter"];
+_counter = 0;
+
+private["_b1", "_b2", "_b3"];
+_b1 = 0; _b2 = 0; _b3 = 0;
+
+private["_c1", "_c2", "_c3"];
+_c1 = 0; _c2 = 0; _c3 = 0;
+
+private["_Arr1", "_Arr2"];
 _Arr1 = [];
 _Arr2 = [];
 
-for [{_i=0}, {_i < (count INV_FarmItemArray)},{_i=_i+1}] do {_Arr1 = _Arr1 + [0]};
-for [{_i=0}, {_i < (count INV_Lizenzen)},{_i=_i+1}] do {_Arr2 = _Arr2 + [0]};
+private["_i"];
+for [{_i=0}, {_i < (count INV_FarmItemArray)},{_i=_i+1}] do {
+	_Arr1 = _Arr1 + [0]
+};
+
+private["_i"];
+waitUntil{!isNil "INV_Licenses"};
+for [{_i=0}, {_i < (count INV_Licenses)},{_i=_i+1}] do {
+	_Arr2 = _Arr2 + [0]
+};
 
 shopusearray = [];
-
-sleep 10;
+sleep 1;
 
 //==================================SHOPACTIONS========================================
 
-for [{_i=0}, {_i < (count INV_ItemShops)}, {_i=_i+1}] do
-{
-	_flag   = ((INV_ItemShops select _i) select 0);
-	shopusearray = shopusearray + [_flag];
+for [{_i=0}, {_i < (count INV_ItemShops)}, {_i=_i+1}] do {
+	private["_object"];
+	_object   = ((INV_ItemShops select _i) select 0);
+	shopusearray = shopusearray + [_object];
 };
 
 //===================================FARMING===============================================
 
-while {true} DO {
-
-for [{_i = 0}, {_i < (count INV_FarmItemArray)}, {_i = _i + 1}] do
-
-	{
-
-	_arr    = (INV_FarmItemArray select _i);
-	_added  = (_Arr1 select _i);
-	_isInArea = false;
-
-	if(iscop and ((_arr select 1) == "Whale" or (_arr select 1) == "Unprocessed_cocain"))exitwith{};
-
+while {true} do {
+	for [{_i = 0}, {_i < (count INV_FarmItemArray)}, {_i = _i + 1}] do {
+		_arr    = (INV_FarmItemArray select _i);
+		_added  = (_Arr1 select _i);
+		_isInArea = false;
+		
+		if((isGov) and ((_arr select 1) == "Whale" or (_arr select 1) == "Unprocessed_cocain")) exitWith {}; 
+		
 		{
-
-		if (((vehicle player) distance (getMarkerPos (_x select 0))) < (_x select 1)) then {_isInArea = true;};
-
+			if (((vehicle player) distance (getMarkerPos (_x select 0))) < (_x select 1)) then {_isInArea = true;};
 		} forEach (_arr select 0);
 
-	_hasVehicle = false;
+		_hasVehicle = false;
 
 		{
-
-		if ((vehicle player) isKindOf _x) then {_hasVehicle = true;};
-
+			if ((vehicle player) isKindOf _x) then {_hasVehicle = true;};
 		} forEach (_arr select 4);
 
-	if ((_isInArea) and (_hasVehicle) and (speed (vehicle player) > 2 or ((_arr select 4) select 0) == "Ship")) then
-
-		{
-
-		[(_arr select 1), (_arr select 2), (_arr select 3), (_arr select 4)] execVM "gathergen.sqf";
-
+		if ((_isInArea) and (_hasVehicle) and (speed (vehicle player) > 2 or ((_arr select 4) select 0) == "Ship")) then {
+			[(_arr select 1), (_arr select 2), (_arr select 3), (_arr select 4)] execVM "gathergen.sqf";
 		};
+	};
+	//======================================LICENSES=========================================
+	for [{_i = 0}, {_i <= (count INV_Licenses)}, {_i = _i + 1}] do {
+		_license     = ((INV_Licenses select _i) select 0);
+		_flags        = ((INV_Licenses select _i) select 1);
+		_licensename = ((INV_Licenses select _i) select 2);
+		_cost        = ((INV_Licenses select _i) select 3);
+		_added       = _Arr2 select _i;
+		if(!isNil "_flags") then {
+			_flag1			= (_flags select 0);
+			_flag2			= (_flags select 1);
+			_flag3			= (_flags select 2);
+			_flag4			= (_flags select 3);
+			_flag5			= (_flags select 4);
+			if(!isNil "_flag1" && !isNil "_flag2" && !isNil "_flag3" && !isNil "_flag4" && !isNil "_flag5") then {
+				if(_flag1 != safelicense) then {
+				
+					if ( ((player distance _flag1 <= 5) OR (player distance _flag2 <= 5) OR (player distance _flag3 <= 5) OR (player distance _flag4 <= 5) OR (player distance _flag5 <= 5)) AND !(_license call INV_HasLicense) and (_added == 0) ) then {
+						call compile format ["a_license%1 = player addaction [format[localize ""STRS_inv_actions_buy"", ""%2"", ""%3""], ""addlicense.sqf"", [%1, ""add""]];", _i, _licensename, strM(_cost)];
+						_Arr2 set [_i, 1];
+					};
 
+					if (((player distance _flag1 > 5) AND (player distance _flag2 > 5) AND (player distance _flag3 > 5) AND (player distance _flag4 > 5)  AND (player distance _flag5 > 5)) AND (_added == 1) || ((_license call INV_HasLicense) AND (_added == 1))) then {
+						call compile format ["player removeaction a_license%1; ", _i];
+						_Arr2 set [_i,0];
+					};
+				};
+			};
+		};
 	};
 
-//=======================================FACTORIES================================================
+	//======================================CLOTHING=========================================
+	for [{_i = 0}, {_i < (count Clothing_Shops)}, {_i = _i + 1}] do {
+		_CShopa		= (Clothing_Shops select _i);
+		_CLocation 	= _CShopa select 0;
 
-for [{_i=0}, {_i < (count INV_ItemFabriken)}, {_i=_i+1}] do {
-_flag   = (INV_ItemFabriken select _i) select 0;
-_name   = (INV_ItemFabriken select _i) select 1;
-_cost   = (INV_ItemFabriken select _i) select 6;
-_ablage = (INV_ItemFabriken select _i) select 7;
-_owner   = false; if (_name in INV_Fabrikowner) then {_owner = true};
-if (player distance _flag <= 5) then {
-if ( (_owner) and (_a2 == 0) ) then {
-INV_action_facablage     = player addaction [localize "STRS_inv_fac_storage", "storage.sqf", [_ablage, "save"]];
-INV_action_facherstellen = player addaction [localize "STRS_inv_fac_mani", "facmani.sqf", [_i]];
-INV_action_facworkers = player addaction [format["Buy factory worker ($%1)", facworkercost], "facqueue.sqf", _i];
-if (_a3 == 1) then {player removeaction INV_action_facbuy;};
-_a2 = 1;
-_f2 = _i;	};
-if ( (not(_owner)) and (_a3 == 0) ) then {
-INV_action_facbuy = player addaction [format[localize "STRS_inv_fac_buy", (_cost call ISSE_str_IntToStr)], "facbuy.sqf", [_i]];
-_a3 = 1;
-_f2 = _i;	};	};
-if ((player distance _flag >  5) and (_a2 == 1) and (_f2 == _i)) then {
-player removeaction INV_action_facablage;
-player removeaction INV_action_facherstellen;
-player removeaction INV_action_facworkers;
-_a2 = 0;		};
-if ((player distance _flag >  5) and (_a3 == 1) and (_f2 == _i)) then {
-player removeaction INV_action_facbuy;
-_a3 = 0;		};				};
+		if(!isNil "_CLocation") then {
+		if (player distance _CLocation <= 2) then {
+			if (_b1 == 0) then {
+				CLOTHECHANGEA	=	_CLocation addaction ["Access Clothes", "Awesome\Clothes\Clothes Dialogs.sqf", [_i], 1, false, true, "", ""];
+				_b1 = 1;
+				_c1 = _i;
+			};	
+		};
+		
+		if ((player distance _CLocation > 2) and (_b1 == 1) and (_c1 == _i)	) then {
+			_CLocation removeaction CLOTHECHANGEA;
+			_b1 = 0;
+		};
+		};
+	};
 
-//======================================LICENSES=========================================
-
-for [{_i = 0}, {_i < (count INV_Lizenzen)}, {_i = _i + 1}] do
-{
-  _license = ((INV_Lizenzen select _i) select 0);
-  _flags = ((INV_Lizenzen select _i) select 1);
-  _licensename = ((INV_Lizenzen select _i) select 2);
-  _cost = ((INV_Lizenzen select _i) select 3);
-  _added = _Arr2 select _i;
-  _flag1 = (_flags select 0);
-  _flag2 = (_flags select 1);
-  _flag3 = (_flags select 2);
-
-  if ( ((player distance _flag1 <= 5) OR (player distance _flag2 <= 5) OR (player distance _flag3 <= 5)) AND !(_license call INV_HasLicense) and (_added == 0) ) then
+	//======================================PAINT=========================================
+	waitUntil{!isNil 'Paint_Shops'};
+	for [{_i = 0}, {_i < (count Paint_Shops)}, {_i = _i + 1}] do
 	{
-  	call compile format ["a_license%1 = player addaction [format[localize ""STRS_inv_actions_buy"", ""%2"", %3], ""addlicense.sqf"", [%1, ""add""]];", _i, _licensename, (_cost call ISSE_str_IntToStr)];
-  	_Arr2 set [_i, 1];
+		private["_PShopa","_PSpawn","_PLocation_1"];
+		_PShopa			= (Paint_Shops select _i);
+		_PSpawn		 	= _PShopa select 0;
+		_PLocation_1 	= _PShopa select 1;
+		//_PLocation_2 	= _PShopa select 2;
 
+		_veh = vehicle player;
+		if(!isNil "_PLocation_1") then {
+		if ( ( ((_veh) distance _PLocation_1) <= 10) && ( (_veh) != player) ) then {
+				if (_b2 == 0) then {
+					(_veh)  removeaction PAINTSHOPA1;
+					PAINTSHOPA1	=	(_veh) addaction ["Access Car Painting", "Awesome\Paint\Paint Dialogs.sqf", [_PSpawn], 1, false, true, "", ""];
+					_b2 = 1;
+					_c2 = _i;
+				};
+			};
+		
+		if (	( (((_veh) distance _PLocation_1 ) > 10) || ((vehicle player) == player)) 	and		 (_b2 == 1) and (_c2 == _i)	) then {
+				(_veh)  removeaction PAINTSHOPA1;
+				_b2 = 0;
+		};
 	};
-
-  if (((player distance _flag1 > 5) AND (player distance _flag2 > 5) AND (player distance _flag3 > 5)) AND (_added == 1)) then
-	{
-  	call compile format ["player removeaction a_license%1; ", _i];
-  	_Arr2 set [_i,0];
 	};
-
-};
-
-sleep 1;
-
+	sleep 1;
+	_counter = _counter + 1;
+	if (_counter >= 5000) exitwith {[] execVM "shopfarmfaclicenseactions.sqf"};
 };

@@ -1,8 +1,11 @@
-robsafes = [0,0];
 while{true} do {
-	_bank = robsafes select 0; _casino = robsafes select 1;
-	if(_bank < 200000)then{ robsafes set [0,_bank + round random 7000]; };
-	if(_casino < 200000)then{ robsafes set [1,_casino + round random 7000]; };
-	publicVariable "robsafes";
-	sleep 110;
+	if(robpoolsafe1 < maxinsafe)then{robpoolsafe1 = robpoolsafe1 + ceil((random 3000) + 2000); publicvariable "robpoolsafe1"};
+	if(robpoolsafe2 < maxinsafe)then{robpoolsafe2 = robpoolsafe2 + ceil((random 3000) + 2000); publicvariable "robpoolsafe2"};
+	if(robpoolsafe3 < maxinsafe)then{robpoolsafe3 = robpoolsafe3 + ceil((random 3000) + 2000); publicvariable "robpoolsafe3"};
+
+	["robpoolsafe1", robpoolsafe1] spawn stats_server_save;
+	["robpoolsafe2", robpoolsafe2] spawn stats_server_save;
+	["robpoolsafe3", robpoolsafe3] spawn stats_server_save;
+
+	sleep 30;
 };

@@ -1,175 +1,132 @@
-INV_DialogPlayers = {
-	private ["_c", "_Fid", "_Fname", "_Fingame", "_Findex", "_Flistlen", "_Feigenenum"];
-  _Fid        = _this select 0;
-  _Fname      = _this select 1;
-  _Fingame    = _this select 2;
-  _Findex     = 0;
-  _Flistlen   = 0;
-  _Feigenenum = -1;
+INV_CreateGunboxLocal = {};
 
-  for [{_c=0}, {_c < (count INV_PLAYERSTRINGLIST)}, {_c=_c+1}] do {
-
-    _Fspieler = INV_PLAYERSTRINGLIST select _c;
-    if ( ((_Fingame) or (_Fspieler call ISSE_UnitExists)) ) then {
-
-		if (_Fname) then
-
-			{
-
-			_Findex = lbAdd [_Fid, format ["%1 - (%2)", _Fspieler, name (call compile _Fspieler)]];
-
-			}
-			else
-			{
-
-			_Findex = lbAdd [_Fid, _Fspieler];
-
+INV_CreateFort = {
+	_this spawn {
+		private ["_class", "_kind", "_logic", "_vehicle", "_vehicle_name"];
+		_logic = _this select 0;
+		_class = _this select 1;
+		_kind = _this select 2;	
+		if (not(alive player)) exitWith {};
+		liafu = true;
+		_vehicle = createVehicle [_class, (getPosATL _logic), [], 0, "NONE"];
+		
+		switch _kind do {
+			case "Static" do {
+				_vehicle_name = format["%1_%2_%3", _kind, player, round(time)];
+				xorE=true;
+				_vehicle setVehicleInit format[
+				'
+				liafu = true;
+				this setVehicleVarName "%1";
+				%1 = this;
+				this lock false;', _vehicle_name];
+				processInitCommands;				
 			};
-
-			lbSetData [_Fid, _Findex, format["%1", _c]];
-			if (_Fspieler == INV_ROLESTRING) then {_Feigenenum = _Flistlen;};
-			_Flistlen = _Flistlen + 1;
-
+			case "Fort" do {};
+			case "Box" do {
+				clearBackpackCargoGlobal _vehicle;
+				clearMagazineCargoGlobal _vehicle;
+				clearWeaponCargoGlobal _vehicle;
+			};
 		};
-
 	};
-
-[_Flistlen, _Feigenenum]
-
-};
-
-INV_CreateVehicle = {
-	private ["_classname","_itemname","_position","_dir"];
-	_classname = _this select 0;
-	_position = _this select 1;
-	_itemname = _this select 2;
-	_dir = _this select 3;
-
-	newvehicle = _classname createVehicle _position;
-	newvehicle setpos _position;
-	newvehicle setdir _dir;
-	newvehicle setVariable ["owner",[name player, getPlayerUID player, _itemname],true];
-	call compile format ['
-			newvehicle setVehicleInit "this setVehicleVarName ""vehicle_%1_%2"";
-			vehicle_%1_%2 = this;
-			clearWeaponCargo this;
-			clearMagazineCargo this;
-			newvehicle lock true;
-		";
-		processInitCommands;
-		INV_VehicleArray = INV_VehicleArray + [vehicle_%1_%2];
-	',player,round(time)];
-
-	// Attack helicopter re-armament
-	if (_classname == "AW159_Lynx_BAF") then {
-	//newvehicle removeWeapon "laserdesignator_mounted";
-	newvehicle removeMagazinesTurret ["12Rnd_CRV7",[0]];
-	newvehicle removeMagazinesTurret ["1200Rnd_20mm_M621",[-1]];
-
-	};
-	if (_classname == "Ka60_PMC") then {
-		hint "Reconfiguring helicopter armament...";
-		newvehicle removeweapon "57mmLauncher";
-		newvehicle removeweapon "FFARLauncher_14";
-		newvehicle removeweapon "VikhrLauncher";
-		newvehicle removeweapon "80mmLauncher";
-		newvehicle removeweapon "2A42";
-	};
-	if (_classname == "AH6J_EP1") then {
-
-		hint "Reconfiguring helicopter armament...";
-		newvehicle removeweapon "FFARLauncher_14";
-		newvehicle addweapon "CMFlareLauncher";
-		newvehicle addmagazine "60Rnd_CMFlareMagazine";
-	};
-	if (_classname == "UH1Y") then {
-		hint "Reconfiguring helicopter armament...";
-		newvehicle removeMagazinesTurret ["14Rnd_FFAR",[-1]];
-		newvehicle removeweapon "FFARLauncher_14";
-	};
-	if (_classname == "An2_TK_EP1") then {
-	newvehicle addWeapon "M230";
-	newvehicle addMagazine "1200Rnd_30x113mm_M789_HEDP";
-	newvehicle addMagazine "1200Rnd_30x113mm_M789_HEDP";
-	newvehicle addMagazine "1200Rnd_30x113mm_M789_HEDP";
-	};
-
-	if (_itemname == "AH6X_EP1_COP") then {
-		newvehicle setVehicleInit 'this setObjectTexture [0, "images\vehicles\ah6x_police.paa"]'; processInitCommands;};
-	if (_itemname == "SUV_COP") then {
-		newvehicle setVehicleInit 'this setObjectTexture [0, "images\vehicles\suv_cop.paa"]'; processInitCommands; };
-	if (_itemname == "SUV_SCO") then {
-		newvehicle setVehicleInit 'this setObjectTexture [0, "images\vehicles\suv_sco.paa"]'; processInitCommands; };
-	if (_itemname == "SUV_RED") then {
-		newvehicle setVehicleInit 'this setObjectTexture [0, "images\vehicles\suv_red.paa"]'; processInitCommands; };
-	if (_itemname == "SUV_BLUE") then {
-		newvehicle setVehicleInit 'this setObjectTexture [0, "images\vehicles\suv_blue.paa"]'; processInitCommands; };
-	if (_itemname == "SUV_WHITE") then {
-		newvehicle setVehicleInit 'this setObjectTexture [0, "images\vehicles\suv_white.paa"]'; processInitCommands; };
-	if (_itemname == "SUV_BLUEWHITE") then {
-		newvehicle setVehicleInit 'this setObjectTexture [0, "images\vehicles\suv_bluewhite.paa"]'; processInitCommands; };
-	if (_itemname == "BTR40_UN") then {
-		newvehicle setVehicleInit 'this setObjectTexture [0, "images\vehicles\btr40_un.paa"]'; processInitCommands; };
-	if (_itemname == "BTR40_UN_U") then {
-		newvehicle setVehicleInit 'this setObjectTexture [0, "images\vehicles\btr40_un.paa"]'; processInitCommands; };
-	if (_classname == "SUV_UN_EP1") then { newvehicle setVehicleInit 'this setObjectTexture [0, "images\vehicles\suv_un.paa"]'; processInitCommands; };
-	if (_classname == "VolhaLimo_TK_CIV_EP1") then { newvehicle setVehicleInit 'this setObjectTexture [0, "images\vehicles\volha_cop.paa"]'; processInitCommands; };
-
-	if (_classname == "ArmoredSUV_PMC") then {
-		newvehicle setVehicleInit '
-		this animate["HideGun_01",1];
-		this animate["HideGun_02",1];
-		this animate["HideGun_03",1];
-		this animate["HideGun_04",1];
-		this animate["CloseCover1",1];
-		this animate["CloseCover2",1];';processInitCommands;
-		newvehicle removeweapon "M134";
-	};
-	if (_classname == "SUV_UN_EP1") then {
-		newvehicle setVehicleInit 'this setObjectTexture [0, "images\vehicles\suv_un.paa"]'; processInitCommands; };
 };
 
 INV_CreateWeapon = {
-  private["_class", "_menge", "_crate"];
-  _class = _this select 0;
-  _menge = _this select 1;
-  _crate = _this select 2;
-  _crate setDamage 0;
-
-  _crate setvehicleinit format["
-  this addweaponCargo [""%1"",%2];
-  ", _class, _menge];
-  processInitCommands;
+	private["_class", "_amount", "_crate"];
+	_class = _this select 0;
+	_amount = _this select 1;
+	_crate = _this select 2;
+	_in_hands = if (count _this > 3) then { _this select 3 } else { false };
+	
+	if (_in_hands) then {
+		player addWeapon _class;
+		player action ["switchweapon", player, player, 0];
+	}
+	else {
+		_crate addweaponCargoGlobal [_class,_amount];
+	};
 };
 
 INV_CreateMag = {
-	private["_class", "_menge", "_crate"];
+	liafu = true;
+	private["_class", "_amount", "_crate"];
 	_class = _this select 0;
-	_menge = _this select 1;
+	_amount = _this select 1;
 	_crate = _this select 2;
-	_crate setDamage 0;
 
-	_crate setvehicleinit format["
-	this addmagazineCargo [""%1"",%2];
-	", _class, _menge];
-	processInitCommands;
+	_crate addmagazineCargoGlobal [_class,_amount];
+
 };
 
-INV_CreateBackpack = {
-	private ["_class", "_menge", "_crate"];
+INV_CreatePack = {
+	liafu = true;
+	private["_class", "_amount", "_crate"];
 	_class = _this select 0;
-	_menge = _this select 1;
+	_amount = _this select 1;
 	_crate = _this select 2;
-	_crate setDamage 0;
+	_in_hands = if (count _this > 3) then { _this select 3 } else { false };
+	
 
-	_crate setvehicleinit format["this addbackpackCargo [""%1"",%2];", _class, _menge];
-	processInitCommands;
+	if (_in_hands) then {
+		player addBackpack _class;
+	}
+	else {
+		_crate addBackpackCargoGlobal [_class, _amount];
+	};
+	
+	//remove the backpack's contents 
+	[] spawn {
+		sleep 1;
+		private["_backpack"];
+		_backpack = unitBackpack player;
+		if (isNil "_backpack") exitWith {};
+		clearWeaponCargoGlobal _backpack;
+		clearMagazineCargoGlobal _backpack;
+	};
 };
+
 
 INV_CreateItem = {
-	private["_class", "_menge", "_stor"];
-	_class = _this select 0;
-	_menge = _this select 1;
-	_stor  = _this select 2;
-	[_class, _menge, _stor] call INV_AddItemStorage;
+	liafu = true;
+	private["_object", "_class", "_amount", "_storage"];
+	_object = _this select 0;
+	_class = _this select 1;
+	_amount = _this select 2;
+	_storage = _this select 3;
+	[_object, _class, _amount, _storage] call INV_AddItemStorage;
+};
+
+INV_IsPlayerVehicle = {
+	private["_isPlayerVehicle", "_vehicle"];
+	_vehicle = _this select 0;
+	if (isNil "_vehicle") exitWith { false };
+	
+	_isPlayerVehicle = _vehicle getVariable "isPlayerVehicle";
+	if (isNil "_isPlayerVehicle") exitWith { false };
+	if (typeName _isPlayerVehicle != "BOOL") exitWith { false };
+	_isPlayerVehicle
+};
+
+INV_LocateClosestVehicle = {
+	private["_i", "_list", "_vehicle", "_distance"];
+	_distance = _this select 0;
+	if (isNil "_distance") exitWith {nil};
+	if (typeName _distance != "SCALAR") exitWith { nil };
+	
+	_list = nearestObjects [player, ["LandVehicle", "Air"], _distance];
+	//player groupChat format["_list = %1", _list];
+	_i = (count _list - 1);
+	_vehicle = nil;
+	while { _i >= 0 } do {
+		private["_current", "_found"];
+		_current = _list select _i;
+		//player groupChat format["_current = %1", _current];
+		if (alive(_current) && ([_current] call INV_IsPlayerVehicle)) then {
+			_vehicle = _current;
+		};
+		_i = _i - 1;
+	};
+	
+	_vehicle
 };

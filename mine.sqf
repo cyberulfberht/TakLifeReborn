@@ -1,169 +1,185 @@
-private ["_minearray"];
 
-_art = _this select 0;
+private["_action", "_minearray"];
 
-if (_art == "use") then
+_action = _this select 0;
+if (_action != "use") exitWith {};
+if (working) exitWith {};
 
-{
-
-if(working)exitwith{};
-
+private["_item", "_number"];
 _item   = _this select 1;
-_anzahl = _this select 2;
+_number = _this select 2;
 
-working=true;
-_isInArea=false;
+private["_isInArea"];
+
+working = true;
+_isInArea = false;
 
 {
-	if (player distance (getMarkerPos ((_x select 0) select 0)) < ((_x select 0) select 1)) then {_isInArea = true; _minearray = _x};
+	if (player distance (getMarkerPos ((_x select 0) select 0)) < ((_x select 0) select 1) && not(isBlu)) then {
+		_isInArea = true; 
+		_minearray = _x
+	};
 } forEach miningarray;
 
+private["_resource", "_max", "_infos", "_name"];
 _resource = _minearray select 1;
-_max      = _minearray select 2;
-_infos    = _resource call INV_getitemArray;
-_name     = (_infos call INV_getitemName);
+_max = _minearray select 2;
+_infos = _resource call INV_GetItemArray;
+_name = (_infos call INV_GetItemName);
 
-if (!_isInArea) exitwith {
-	hintSilent "You are not near a mine.";
+if (not(_isInArea)) exitWith {
+	player groupChat "You are not near a mine.";
 	working = false;
 };
 
-if(_item == "Shovel")then
-
-	{
-
+if (_item == "Shovel") then {
 	totalamount=0;
 	_max = shovelmax;
-
-	for [{_i=0}, {_i < 4}, {_i=_i+1}] do
-
-		{
-
+	
+	private["_i"];
+	_i = 0;
+	while { _i < 4 } do {
 		_amount = round (random _max);
 		titletext ["Digging...", "PLAIN DOWN", 0.1];
 		player playmove "AinvPknlMstpSlayWrflDnon";
+		
 		sleep 1.3;
 		player switchmove "normal";
 		shoveldur = shoveldur - (floor (random 2));
 
-		if(shoveldur <= 0)exitwith{hintSilent "The shovel broke"; ["Shovel", -1] call INV_AddInventoryItem; shoveldur=20;};
+		if(shoveldur <= 0) exitWith {
+			player groupchat "The shovel broke"; 
+			[player, "Shovel", -1] call INV_AddInventoryItem; shoveldur=20;
+		};
 
-		_avail = floor (INV_Tragfaehigkeit - (call INV_GetOwnWeight));
+		_avail = floor (INV_CarryingCapacity - (call INV_GetOwnWeight));
 
 		totalamount = totalamount + _amount;
-		if((totalamount*3) >= _avail)exitwith{totalamount = (_avail/3); hintSilent "maximum weight reached"; _i=6;};
-		hintSilent format["You got %1 %2.", _amount, _name];
-
+		if ((totalamount*3) >= _avail) exitWith {
+			totalamount = (_avail/3); 
+			player groupchat "maximum weight reached"; 
+			_i = 6;
 		};
-	totalamount = (floor (totalamount));
-	[_resource, totalamount] call INV_AddInventoryItem;
-
+		
+		player groupchat format["You got %1 %2.", _amount, _name];
+		_i = _i + 1;
 	};
-
-if(_item == "fishingpole")then
-
-	{
-
-	totalamount=0;
-	_max = fishingpolemax;
-
-	for [{_i=0}, {_i < 4}, {_i=_i+1}] do
-
-		{
-
-		_amount = round (random _max);
-		titletext ["Digging...", "PLAIN DOWN", 0.1];
-		player playmove "AinvPknlMstpSlayWrflDnon";
-		sleep 1.3;
-		player switchmove "normal";
-		fishingpoledur = fishingpoledur - (floor (random 2));
-
-		if(fishingpoledur <= 0)exitwith{hintSilent "The fishing pole broke"; ["fishingpole", -1] call INV_AddInventoryItem; fishingpoledur=20;};
-
-		_avail = floor (INV_Tragfaehigkeit - (call INV_GetOwnWeight));
-
-		totalamount = totalamount + _amount;
-		if((totalamount*3) >= _avail)exitwith{totalamount = (_avail/3); hintSilent "maximum weight reached"; _i=6;};
-		hintSilent format["You got %1 %2.", _amount, _name];
-
-		};
+	
 	totalamount = (floor (totalamount));
-	[_resource, totalamount] call INV_AddInventoryItem;
+	[player, _resource, totalamount] call INV_AddInventoryItem;
+};
 
-	};
-
-if(_item == "Pickaxe")then
-
-	{
-
+if (_item == "Pickaxe") then {
+	private["_max"];
 	totalamount=0;
 	_max = pickaxemax;
-
-	for [{_i=0}, {_i < 5}, {_i=_i+1}] do
-
-		{
-
+	
+	private["_i"];
+	_i = 0;
+	while { _i < 4 } do {
+		private["_amount"];
 		_amount = round (random _max);
+		
 		titletext ["Working...", "PLAIN DOWN", 0.1];
+		
 		player playmove "AinvPknlMstpSlayWrflDnon";
 		sleep 1.3;
 		player switchmove "normal";
+		
 		pickaxedur = pickaxedur - (floor (random 2));
 
-		if(pickaxedur <= 0)exitwith{hintSilent "The pickaxe broke"; ["Pickaxe", -1] call INV_AddInventoryItem; pickaxedur=50;};
-
-		_avail = floor (INV_Tragfaehigkeit - (call INV_GetOwnWeight));
-
-		totalamount = totalamount + _amount;
-		if((totalamount*3) >= _avail)exitwith{totalamount = (_avail/3); hintSilent "maximum weight reached"; _i=6;};
-
-		hintSilent format["You got %1 %2.", _amount, _name];
-
+		if(pickaxedur <= 0) exitWith {
+			player groupchat "The pickaxe broke"; 
+			[player, "Pickaxe", -1] call INV_AddInventoryItem; 
+			pickaxedur=50;
 		};
-	totalamount = (floor (totalamount));
-	[_resource, totalamount] call INV_AddInventoryItem;
 
-	};
+		_avail = floor (INV_CarryingCapacity - (call INV_GetOwnWeight));
 
-if(_item == "JackHammer")then
-
-	{
-
-	totalamount=0;
-	_max = pickaxemax;
-	
-	titletext ["Working...", "PLAIN DOWN", 0.1];
-	player playmove "AmovPercMstpSnonWnonDnon_exercisekneeBendB";
-	
-  for [{_i=0}, {_i < 5}, {_i=_i+1}] do
-	{ 
-	  _amount = round (random _max);
-		sleep 0.8;
-		player switchmove "normal";
-		_avail = floor (INV_Tragfaehigkeit - (call INV_GetOwnWeight));
-		
 		totalamount = totalamount + _amount;
-		if((totalamount*3) >= _avail)exitwith{totalamount = (_avail/3); hintSilent "maximum weight reached"; _i=6;};
-		hintSilent format["You got %1 %2.", _amount, _name];
-		 }; 
-    
+		if((totalamount*3) >= _avail) exitwith {
+			totalamount = (_avail/3); player groupchat "maximum weight reached"; _i=6;
+		};
+
+		player groupchat format["You got %1 %2.", _amount, _name];
+		_i = _i + 1;
+	};
+	
 	totalamount = (floor (totalamount));
-	if ((vehicle player) == player) then {
-	[_resource, totalamount] call INV_AddInventoryItem;
-	} else {
-	_vcls = nearestobjects [getpos player, ["LandVehicle", "Air", "ship"],15];
-    _vcl = _vcls select 0;
-	_vclClass = (typeOf _vcl);
-	_maxweight = _vclClass call INV_getvehmaxkg;
-	_totalamount = totalamount call ISSE_str_StrToInt;
-	_storageweight = (format["%1_storage", _vcl] call INV_GetStorageWeight) + (_totalamount * (_resource call INV_getitemTypeKg));
-	if(_storageweight > _maxweight)then{hintSilent "The vehicle's storage is full";
-	} else {
-	[_resource, totalamount, format["%1_storage", _vcl]] call INV_AddItemStorage;};
-	};
-
-	};
-
-working=false;
-
+	[player, _resource, totalamount] call INV_AddInventoryItem;
 };
+
+if (_item == "JackHammer") then {
+	totalamount=0;
+	_max = hammermax;
+
+	private["_i"];
+	_i = 0;
+	while { _i < 4 } do {
+		titletext ["Drilling...", "PLAIN DOWN", 0.1];
+		player playmove "AmovPercMstpSnonWnonDnon_exercisekneeBendB";
+		
+		private["_amount", "_avail" ];
+		_amount = round (random _max);
+		hammerdur = hammerdur - (floor (random 2));
+		
+		if(hammerdur <= 0) exitWith {
+			player groupchat "The Jack Hammer broke"; 
+			[player, "JackHammer", -1] call INV_AddInventoryItem; 
+			hammerdur=100;
+		};
+		
+		_avail = floor (INV_CarryingCapacity - (call INV_GetOwnWeight));
+		totalamount = totalamount + _amount;
+		
+		if ((totalamount*3) >= _avail) exitWith {
+			totalamount = (_avail/3); player groupchat "maximum weight reached"; _i=6;
+		};
+		
+		player groupchat format["You got %1 %2", _amount, _name];
+		sleep 0.8;
+		_amount = round (random _max);
+		
+		hammerdur = hammerdur - (floor (random 2));
+		
+		if (hammerdur <= 0) exitWith {
+			player groupchat "The Jack Hammer broke"; 
+			[player, "JackHammer", -1] call INV_AddInventoryItem; 
+			hammerdur=100;
+		};
+		
+		_avail = floor (INV_CarryingCapacity - (call INV_GetOwnWeight));
+		totalamount = totalamount + _amount;
+		if ((totalamount*3) >= _avail) exitWith {
+			totalamount = (_avail/3); player groupchat "maximum weight reached"; _i=6;
+		};
+		
+		player groupchat format["You got %1 %2", _amount, _name];
+		sleep 0.8;
+		_amount = round (random _max);
+		hammerdur = hammerdur - (floor (random 2));
+		if (hammerdur <= 0) exitWith {
+			player groupchat "The Jack Hammer broke"; 
+			[player, "JackHammer", -1] call INV_AddInventoryItem; 
+			hammerdur=100;
+		};
+		
+		_avail = floor (INV_CarryingCapacity - (call INV_GetOwnWeight));
+		totalamount = totalamount + _amount;
+		
+		if ((totalamount*3) >= _avail) exitWith {
+			totalamount = (_avail/3); player groupchat "maximum weight reached"; _i=6;
+		};
+		
+		player groupchat format["You got %1 %2", _amount, _name];
+		waitUntil { animationstate player != "amovPercMstpSnonWnonDnon_exercisekneeBendB" };
+		
+		_i = _i + 1;
+	};
+	
+	totalamount = (floor (totalamount));
+	[player, _resource, totalamount] call INV_AddInventoryItem;
+};
+
+working = false;
+
