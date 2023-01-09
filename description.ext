@@ -1,4 +1,4 @@
-loadScreen = "Loading.jpg";
+loadScreen = "loading.jpg";
 onLoadIntro   = $STRD_description_onloadintro;
 onLoadMission = $STRD_description_onloadmission;
 showCompass   = 1;
@@ -78,7 +78,7 @@ class Extended_PreInit_EventHandlers
     };
 };*/
 
-class Extended_PostInit_EventHandlers   
+class Extended_PostInit_EventHandlers
 {
 	class heli_extras
 	{
@@ -130,6 +130,3 @@ class Extended_PostInit_EventHandlers
 //#include "CodePad.hpp"
 
 #include "adminconsoldesc.hpp"
-
-
-

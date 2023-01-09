@@ -121,8 +121,8 @@ class Mission
 	randomSeed=4402856;
 	class Intel
 	{
-		briefingName="Takistan Life Xtreme 1.5.1";
-		briefingDescription="Bark Bark!";
+		briefingName="TakLife Reborn: Age of Insurgency v1.0";
+		briefingDescription="By CyberUlfberht";
 		resistanceWest=0;
 		startWeather=0;
 		forecastWeather=0;
