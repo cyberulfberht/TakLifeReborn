@@ -7,7 +7,7 @@ while {_time > 0 and blackscreenLoopRunning} do {
 	_time = _time - 1;
 
 	if ((_time % 30) == 0) then {
-		titletext [format["You will be blackscreened in %1 minute(s). Please get on teamspeak. The address is: ts.tlx-gaming.com", (_time/60)], "PLAIN DOWN", 0];
+		titletext [format["You will be blackscreened in %1 minute(s). Teamspeak/Discord Server has not yet been setup", (_time/60)], "PLAIN DOWN", 0];
 	};
 };
 

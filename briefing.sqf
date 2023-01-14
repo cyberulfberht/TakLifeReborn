@@ -132,14 +132,14 @@ player createDiaryRecord ["credits",
 [
 "Staff and TS3",
 "
-Owner: [TLX] Giovanni<br/>
+Owner: CyberUlfberht<br/>
 Discord Info:<br/>
-Address: https://discord.gg/rWsDd2h or visit our website for a link<br/>
+Address: N/A at this time<br/>
 Teamspeak Info:<br/>
-Address: ts.tlx-gaming.com<br/>
-Mission build: 1.5.2<br/>
-Current version developed by: D-Nice, [TLX] Lex_The_Great, [TLX] Giovanni, [TLX] Strideynet<br/>
-Also special thanks to all the developers who made Takistan Life Revolution to what it is today<br/>
+Address: N/A at this time<br/>
+Mission build: 1.0.0<br/>
+Current version developed by: CyberUlfberht<br/>
+Also special thanks to all the developers who made Takistan Life to what it is today, D-Nice, [TLX] Lex_The_Great, [TLX] Giovanni, [TLX] Strideynet <br/>
 "
 ]
 ];
@@ -149,9 +149,9 @@ player createDiaryRecord ["bugs",
 "Boogies",
 "
 Please report bugs on Discord or submit a bug report!<br/>
-Website: tlx-gaming.com<br/>
-Bug report: tlx-gaming.com/bugreport<br/>
-Discord: https://discord.gg/rWsDd2h or visit our website for a link<br/>
+Website: N/A at this time<br/>
+Bug report: N/A at this time<br/>
+Discord: N/A at this time<br/>
 <br/>
 <br/>
 We look forward to playing with you!<br/>
@@ -219,72 +219,12 @@ this should give you the options for video settings, shout outs, fix head bug, a
 
 player createDiaryRecord ["changelog",
 [
-"Takistan Life Xtreme",
+"TakLife Reborn",
 "
 <br/>
-Jan 15, 2018<br/>
-Various fixes here and there 1.5.2<br/>
-Edited: PMC slots are now open to the public
-Edited: Objectgeddon delay extended to 60 min
-Fixed: some players don't get starting money
-Fixed: all arrested players getting charged as bank robbers
-Fixed: typo in suicide messages
+Jan 14, 2023<br/>
+Reborn 1.0.0<br/>
 <br/>
-<br/>
-<br/>
-Jan 15, 2018<br/>
-The server returns once again! 1.4.7<br/>
-Fixed: bank account not loading<br/>
-<br/>
-<br/>
-Dec 2, 2016<br/>
-SERVER RETURNS! 1.4.2<br/>
-Edited: Several parts of outdated text<br/>
-<br/>
-<br/>
-Oct 18, 2015<br/>
-MINOR UPDATE 1.4.1<br/>
-Added: .,! to law menu.<br/>
-Removed: INS 5 6 7 8.<br/>
-Edited: Fixed bank rob after death<br/>
-Edited: INS supporter moved/change<br/>
-<br/>
-Oct 10, 2015<br/>
-MAJOR UPDATE 1.4<br/>
-Added: To Many To List!<br/>
-Added: Weapons<br/>
-Added: War Zones<br/>
-Edited: Rules<br/>
-Edited: Base Changes<br/>
-Edited: Various code optimization and fixes<br/>
-<br/>
-August 14, 2014<br/>
-MAJOR UPDATE 1.0<br/>
-Added: Warring options for TLA leader<br/>
-Added:Chief has options to declare/lift martial law<br/>
-Added:Cops, Opfor, Insurgents now get paid 20k per minute for manning border CPs<br/>
-Edited: Most buildings are now destructible ingame, aside from some safezones, like rasman, civ spawn, and opfor spawn<br/>
-Edited: Various code optimization<br/>
-June 7, 2014<br/>
-Fixed a few duping bugs<br/>
-Added speedgun for cops use ctrl+g to activate while in vehicle<br/>
-Stat save removed, as it does not work on linux dedicated server.<br/>
-Added more aerial vehicles for civis.<br/>
-Added lighting to all faction spawn points.<br/>
-Added rubber bullets for M1014 and Saiga12K which can now act as long range stun rifles.<br/>
-Added several static artillery and pods that can be towed by players.<br/>
-Added ability to tow all planes.<br/>
-Reorganized supporter shop inventories.<br/>
-Added Auto comp system for restarts, giving 5M per paycheck for first 14 minutes.<br/>
-TODO: Add TWS for top level supporters and hideouts, and some more vehicles and weapons for supporters.<br/>
-<br/>
-May 14, 2014<br/>
-Added: Mortars, fully working with all 3 shell types, HE, WP, Illum.<br/>
-Added: All vehicles added.<br/>
-Added: Rasman CP fortifications and border CP gates.<br/>
-Edited: Edited some shop and vehicles prices.<br/>
-Edited: Balanced factions, increasing indep kill price for cops to 100k and 150k for opfor.<br/>
-Edited: Balanced faction salaries.<br/>
 <br/>
 "
 ]
@@ -294,7 +234,7 @@ player createDiaryRecord ["rules",
 [
 "Where to find our most up to date rules",
 "
-Go on our website at tlx-gaming.com to find our most up to date rules list.
+Look at briefing
 <br/>
 
 "

@@ -19,7 +19,7 @@ private ["_h"];
 debug = false;
 
 //////////////////////////
-systemChat "Initializing Takistan Life Xtreme.";
+systemChat "Initializing TakLife Reborn.";
 
 _h = [] execVM "supporters.sqf";
 waitUntil{scriptDone _h};
@@ -70,9 +70,9 @@ waitUntil{scriptDone _h};
 
 
 if (isServer) then {
-	/*CBA_display_ingame_warnings = false; 
+	/*CBA_display_ingame_warnings = false;
 	publicVariable "CBA_display_ingame_warnings";*/
-	
+
 	call compile preprocessFile "\iniDB\init.sqf";
 	sleep 0.1;
 	[] execVM "\iniDB\saver.sqf";

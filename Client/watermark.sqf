@@ -1,4 +1,4 @@
-watermark_text = "TLX";
+watermark_text = "TakLife Reborn";
 sleep 1;
 
 //Watermark
