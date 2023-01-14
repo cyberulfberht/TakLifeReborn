@@ -23,7 +23,8 @@ A_LIST_DERPS	= [];
 
 A_LIST_SNADMINS	=
 [
-	"76561198134919635" // Wookie
+	"76561198134919635", // Wookie
+	"76561198060618922" //austi
 ];
 
 // Remember the Array format! No comma on last item in array!
@@ -33,14 +34,15 @@ A_LIST_SNADMINS	=
 A_LIST_ADMINS	=
 [
 	"76561198071078533", // Rogue
-	"76561198018640903" // Winters
+	"76561198018640903", // Winters
+	"76561198060618922" //austi
 ];
 
 // Remember the Array format! No comma on last item in array!
 
 // Moderators
 
-A_LIST_MODS	= 
+A_LIST_MODS	=
 [
 	"76561198120523288", // Keegan
 	"76561198160921083", // Pasty
@@ -85,12 +87,12 @@ pmcwhitelist = [
 // Blacklisting
 if(isNil "copblacklist") then {
 	copblacklist = [
-	
+
 	];
 };
 if(isNil "opfblacklist") then {
 	opfblacklist = [
-	
+
 	];
 };
 if(isNil "opfcmdblacklist") then {

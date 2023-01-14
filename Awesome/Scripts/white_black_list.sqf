@@ -9,12 +9,12 @@ A_LIST_DERPS	=
 
 A_LIST_SNADMINS	=
 [
-
+	"76561198060618922" //austi
 ];
 
 A_LIST_ADMINS	=
 [
-
+	"76561198060618922" //austi
 ];
 
 A_LIST_MODS	=
@@ -30,17 +30,16 @@ isMod = (getPlayerUID player) in A_LIST_MODS;
 isAdmins = (isAdmin||isSnAdmin||isAdminDev||isDeveloper);
 isStaff = (isAdminDev || isSnAdmin || isAdmin || isMod);
 
-
 /*
 // Used for white-black list dialog
 A_WBL_F_DIALOG_INIT = {
 	private
 	[
-		"_DFML", 
+		"_DFML",
 		"_DFML_LIST1", "_DFML_LIST2", "_DFML_LIST3",
 		"_DFML_BUTTON_B_1", "_DFML_BUTTON_B_2", "_DFML_BUTTON_B_3",
 		"_DFML_BUTTON_W_1", "_DFML_BUTTON_W_2", "_DFML_BUTTON_W_3",
-		"_DFML_TITLE_1", "_DFML_TITLE_2", "_DFML_TITLE_3", "_DFML_TITLE_1_DESC", "_DFML_TITLE_2_DESC", "_DFML_TITLE_3_DESC", 
+		"_DFML_TITLE_1", "_DFML_TITLE_2", "_DFML_TITLE_3", "_DFML_TITLE_1_DESC", "_DFML_TITLE_2_DESC", "_DFML_TITLE_3_DESC",
 		"_list_name", "_array", "_whiteList", "_blackList", "_list_choice_num",
 		"_uid", "_whiteList_active", "_blackList_active",
 		"_type_num", "_type_name", "_index",
@@ -52,44 +51,44 @@ A_WBL_F_DIALOG_INIT = {
 	];
 
 	if (!(createDialog "white_black_list")) exitWith {hint "Dialog Error!";};
-	
+
 	disableSerialization;
-	
+
 	_DFML = findDisplay 3005;
-	
+
 	_DFML_LIST1 		= (_DFML displayCtrl 1500);
 	_DFML_LIST2 		= (_DFML displayCtrl 1501);
 	_DFML_LIST3 		= (_DFML displayCtrl 1502);
-	
+
 	_DFML_BUTTON_B_1	= (_DFML displayCtrl 1700);
 	_DFML_BUTTON_B_2	= (_DFML displayCtrl 1701);
 	_DFML_BUTTON_B_3	= (_DFML displayCtrl 1705);
 	_DFML_BUTTON_B_4	= (_DFML displayCtrl 1707);
-	
+
 	_DFML_BUTTON_W_1	= (_DFML displayCtrl 1702);
 	_DFML_BUTTON_W_2	= (_DFML displayCtrl 1703);
 	_DFML_BUTTON_W_3	= (_DFML displayCtrl 1706);
 	_DFML_BUTTON_W_4	= (_DFML displayCtrl 1708);
-	
+
 	_DFML_TITLE_1		= (_DFML displayCtrl 1000);
 	_DFML_TITLE_2		= (_DFML displayCtrl 1001);
 	_DFML_TITLE_3		= (_DFML displayCtrl 1002);
-	
+
 	_DFML_TITLE_1_DESC	= (_DFML displayCtrl 1003);
 	_DFML_TITLE_2_DESC	= (_DFML displayCtrl 1004);
 	_DFML_TITLE_3_DESC	= (_DFML displayCtrl 1005);
-	
+
 	_list_name		= _this select 0;
 	_array			= [];
-	
+
 	_playerList_array_DFML 	= [];
 	_whiteList_array_DFML	= [];
 	_blackList_array_DFML 	= [];
-	
+
 	_playerList_array_DFML_T 	= [];
 	_whiteList_array_DFML_T		= [];
 	_blackList_array_DFML_T 	= [];
-	
+
 	{
 		if ((_x select 0) == _list_name) then {
 				_array = _x;
@@ -98,12 +97,12 @@ A_WBL_F_DIALOG_INIT = {
 				_list_choice_num	= _array select 3;
 			};
 	} forEach A_WBL_LISTS_ALL;
-	
+
 	{
 		if ((_x select 0) == _whiteList) then {
 			_whiteList_variable 	= _x select 1;
 		};
-			
+
 		if ((_x select 0) == _blackList) then {
 			_blackList_variable 	= _x select 1;
 		};
@@ -113,41 +112,41 @@ A_WBL_F_DIALOG_INIT = {
 	_DFML_BUTTON_B_2 ctrlSetText format["Remove from Black List"];
 	_DFML_BUTTON_B_3 ctrlSetText format["Remove selected Player from BL"];
 	_DFML_BUTTON_B_4 ctrlSetText format["Clear Black List"];
-	
+
 	_DFML_BUTTON_W_1 ctrlSetText format["Add to White List"];
 	_DFML_BUTTON_W_2 ctrlSetText format["Remove from White List"];
 	_DFML_BUTTON_W_3 ctrlSetText format["Remove selected Player from WL"];
 	_DFML_BUTTON_W_4 ctrlSetText format["Clear White List"];
-	
+
 	_whiteList_active = "";
 	_blackList_active = "";
-	
+
 	if (_list_choice_num == 1) then {
 		_whiteList_active = "Active";
 	} else {
 		_whiteList_active = "In-Active";
-		
+
 		_DFML_BUTTON_W_1 ctrlEnable false;
 		_DFML_BUTTON_W_2 ctrlEnable false;
 		_DFML_BUTTON_W_3 ctrlEnable false;
 		_DFML_BUTTON_W_4 ctrlEnable false;
 	};
-	
+
 	if (_list_choice_num == 2) then {
 		_blackList_active = "Active";
 	} else {
 		_blackList_active = "In-Active";
-		
+
 		_DFML_BUTTON_B_1 ctrlEnable false;
 		_DFML_BUTTON_B_2 ctrlEnable false;
 		_DFML_BUTTON_B_3 ctrlEnable false;
 		_DFML_BUTTON_B_4 ctrlEnable false;
 	};
-	
+
 	_DFML_TITLE_1 ctrlSetText format["White List - %1", _whiteList_active];
 	_DFML_TITLE_2 ctrlSetText format["Black List - %1", _blackList_active];
 	_DFML_TITLE_3 ctrlSetText format["Player List"];
-	
+
 	if (isAdmin) then {
 		_DFML_TITLE_1_DESC ctrlSetText format["UID		-		TYPE"];
 		_DFML_TITLE_2_DESC ctrlSetText format["UID		-		TYPE"];
@@ -167,12 +166,12 @@ A_WBL_F_DIALOG_INIT = {
 		_DFML_BUTTON_B_2 buttonSetAction format["[""%1"", ""%2""] call %3;", _blackList, (_DFML_LIST2 lbData (lbCurSel _DFML_LIST2)), A_WBL_F_L_REMOVE];
 		_DFML_BUTTON_B_3 buttonSetAction format["[""%1"", ""%2""] call %3;", _blackList, (_DFML_LIST3 lbData (lbCurSel _DFML_LIST3)), A_WBL_F_L_REMOVE];
 		_DFML_BUTTON_B_4 buttonSetAction format["[""%1""] call %2;", _blackList, A_WBL_F_L_REMOVE_ALL];
-		
+
 		_DFML_BUTTON_W_1 buttonSetAction format["[""%1"", ""%2""] call %3;", _whiteList, (_DFML_LIST3 lbData (lbCurSel _DFML_LIST3)), A_WBL_F_L_ADD];
 		_DFML_BUTTON_W_2 buttonSetAction format["[""%1"", ""%2""] call %3;", _whiteList, (_DFML_LIST1 lbData (lbCurSel _DFML_LIST1)), A_WBL_F_L_REMOVE];
 		_DFML_BUTTON_W_3 buttonSetAction format["[""%1"", ""%2""] call %3;", _whiteList, (_DFML_LIST3 lbData (lbCurSel _DFML_LIST3)), A_WBL_F_L_REMOVE];
 		_DFML_BUTTON_W_4 buttonSetAction format["[""%1""] call %2;", _whiteList, A_WBL_F_L_REMOVE_ALL];
-		
+
 		_playerList_array_DFML_T = [];
 		{
 			if (isPlayer _x) then {
@@ -180,7 +179,7 @@ A_WBL_F_DIALOG_INIT = {
 				_playerList_array_DFML_T set[(count _playerList_array_DFML_T), _uid];
 			};
 		} forEach allUnits;
-		
+
 		if ((count _playerList_array_DFML) != (count _playerList_array_DFML_T)	) then {
 			_playerList_update = true;
 		} else {
@@ -192,59 +191,59 @@ A_WBL_F_DIALOG_INIT = {
 				_i = _i + 1;
 			} forEach _playerList_array_DFML;
 		};
-		
+
 		if (_playerList_update) then {
 			player groupchat format['PLAYERLIST UPDATING'];
 			_playerList_array_DFML = [];
-			
+
 			lbClear _DFML_LIST3;
-			
+
 			{
 				if ([_x] call player_human) then {
 					private["_uid"];
 					_uid = (getPlayerUID _x);
-					
+
 					if (isAdmin) then {
-						_index = _DFML_LIST3 lbAdd 
+						_index = _DFML_LIST3 lbAdd
 						(
 
 							format[
-								"%1 - %2 - %3 - %4 - %5 - %6 - %7", 
-								_uid, 
-								(name _x), 
+								"%1 - %2 - %3 - %4 - %5 - %6 - %7",
+								_uid,
+								(name _x),
 								(_x),
-								(call compile format["""%1"" in %2;", _uid, _whiteList_variable]), 
+								(call compile format["""%1"" in %2;", _uid, _whiteList_variable]),
 								(call compile format["""%1"" in %2;", _uid, _blackList_variable]),
 								(_uid in A_LIST_ADMINS), (_uid in A_LIST_supporterS)
 							  ]
 						);
-					} 
+					}
 					else {
-						_index	= _DFML_LIST3 lbAdd 
+						_index	= _DFML_LIST3 lbAdd
 						(
 							format[
-								"%1	-	%2	-	%3	-	%4	-	%5", 
-								_uid, 
-								(name _x), 
-								(_x), 
-								(call compile format["""%1"" in %2;", _uid, _whiteList_variable]), 
+								"%1	-	%2	-	%3	-	%4	-	%5",
+								_uid,
+								(name _x),
+								(_x),
+								(call compile format["""%1"" in %2;", _uid, _whiteList_variable]),
 								(call compile format["""%1"" in %2;", _uid, _blackList_variable])
 							]
 						);
 					};
-					
+
 					_DFML_LIST3 lbSetData [_index, (_uid)];
 					_playerList_array_DFML set [(count _playerList_array_DFML), _uid];
 				};
 			} forEach allUnits;
-			
+
 			_playerList_update = false;
-			
+
 			player groupchat format['PLAYERLIST UPDATED'];
 		};
 
 		_whiteList_array_DFML_T	= call compile _whiteList_variable;
-		
+
 		if ((count _whiteList_array_DFML) != (count _whiteList_array_DFML_T)	) then {
 			_whiteList_update = true;
 		} else {
@@ -256,7 +255,7 @@ A_WBL_F_DIALOG_INIT = {
 				_i = _i + 1;
 			} forEach _whiteList_array_DFML;
 		};
-		
+
 		if (_whiteList_update) then {
 			player groupchat format['WHITELIST UPDATING'];
 			_whiteList_array_DFML = call compile _whiteList_variable;
@@ -266,25 +265,25 @@ A_WBL_F_DIALOG_INIT = {
 			{
 				_type_num	= [_x] call A_WBL_GETTYPE_NUM;
 				_type_name	= [_type_num] call A_WBL_GETTYPE_NAME;
-				
+
 				if (isAdmin) then {
 						_index	= _DFML_LIST1 lbAdd (format["%1		-		%2", (_x), (_type_name)]);
 					} else {
 						_index	= _DFML_LIST1 lbAdd (format["%1", (_x), (_type_name)]);
 					};
-					
+
 				_DFML_LIST1 lbSetData [_index, (_x)];
 			} forEach (_whiteList_array_DFML);
-				
+
 			_whiteList_update = false;
-			
+
 			_DFML_LIST1 lbSetCurSel 0;
-			
+
 			player groupchat format['WHITELIST UPDATED'];
 		};
-		
+
 		_blackList_array_DFML_T	= call compile _blackList_variable;
-		
+
 		if ((count _blackList_array_DFML) != (count _blackList_array_DFML_T)	) then {
 			_blackList_update = true;
 		} else {
@@ -296,30 +295,30 @@ A_WBL_F_DIALOG_INIT = {
 				_i = _i + 1;
 			} forEach _blackList_array_DFML;
 		};
-		
+
 		if (_blackList_update) then {
 			player groupchat format['BLACKLIST UPDATING'];
 			_blackList_array_DFML = call compile _blackList_variable;
 			_DFML_LIST2 lbSetCurSel 0;
-				
+
 			lbClear _DFML_LIST2;
 			{
 				_type_num	= [_x] call A_WBL_GETTYPE_NUM;
 				_type_name	= [_type_num] call A_WBL_GETTYPE_NAME;
-				
+
 				if (isAdmin) then {
 						_index	= _DFML_LIST2 lbAdd (format["%1		-		%2", (_x), (_type_name)]);
 					} else {
 						_index	= _DFML_LIST2 lbAdd (format["%1", (_x), (_type_name)]);
 					};
-				
+
 				_DFML_LIST2 lbSetData [_index, (_x)];
 			} forEach (_blackList_array_DFML);
-				
+
 			_blackList_update = false;
-			
+
 			_DFML_LIST2 lbSetCurSel 0;
-			
+
 			player groupchat format['BLACKLIST UPDATED'];
 		};
 		sleep 5;
@@ -359,12 +358,12 @@ A_WBL_F_LOAD_S = {
 			_file		= _x select 2;
 			_pv_s		= _x select 3;
 			_pv_c		= _x select 4;
-				
+
 			_i = 0;
 			_true = true;
 			_text = "";
 			_array = [];
-		
+
 			_out = "stdio" callExtension format["read(%1,%2)", _file, _i];
 
 			while {_true} do {
@@ -373,13 +372,13 @@ A_WBL_F_LOAD_S = {
 				_out = "stdio" callExtension format["read(%1,%2)", _file, _i];
 				if (_out == "") then {_true = false};
 			};
-				
+
 			_array = call compile _text;
-			
+
 			missionNamespace setVariable [_variable, []];
 			missionNamespace setVariable [_pv_s, []];
 			missionNamespace setVariable [_pv_c, []];
-						
+
 			_i = 0;
 			for [{_i=0}, {_i < (count _array)}, {_i=_i+1}] do {
 				call compile format["%1 set[%2, ""%3""];", _variable, _i, _array select _i];
@@ -394,10 +393,10 @@ A_WBL_F_LOAD_S = {
 // Saves list (server)
 A_WBL_F_SAVE =  {
 	private["_section_change", "_section_value", "_section", "_file", "_array", "_value", "_change", "_i"];
-	
+
 	_section_change		= _this select 0;
 	_section_value		= _this select 1;
-	
+
 	_section = "";
 	_file = "";
 
@@ -433,17 +432,17 @@ A_WBL_F_SAVE =  {
 // Refreshes all lists, sends (server)
 A_WBL_F_REFRESH_S =  {
 	{
-		_x call A_WBL_F_LOAD_S; 
+		_x call A_WBL_F_LOAD_S;
 	} forEach A_WBL_LISTS;
 };
 
 // Refreshes list, receives (Client - Server)
 A_WBL_F_REFRESH_R =  {
 	private[ "_pvariable_name", "_pvariable_value", "_variable", "_pv_s", "_i"];
-	
+
 	_pvariable_name 	= _this select 0;
 	_pvariable_value 	= _this select 1;
-	
+
 	{
 		_variable 	= _x select 1;
 		_pv_s		= _x select 3;
@@ -465,46 +464,46 @@ A_WBL_F_R =  {
 
 	_name = _this select 0;
 	_value = (_this select 1);
-	
+
 	{
 		if ((_x select 4) == _name) then {
-		
+
 				_section	= _x select 0;
 
 				[_section, _value] call A_WBL_F_SAVE;
-			};		
+			};
 	} forEach A_WBL_LISTS;
 };
 
 // Add onto list
 A_WBL_F_L_ADD = {
 	private["_list_name", "_uid", "_List_variable", "_List_pv_c"];
-	
+
 	_list_name 	= _this select 0;
 	_uid		= _this select 1;
-	
+
 	if (_uid == "") exitwith {player groupchat "ERROR: Please reselect the list item then retry the add button";};
-	
+
 	_List_variable 	= "";
 	_List_pv_c		= "";
-	
+
 	{
 		if ((_x select 0) == _list_name) then {
 			_List_variable 		= _x select 1;
 			_List_pv_c			= _x select 4;
 		};
 	} forEach A_WBL_LISTS;
-	
+
 	if(	!(_uid in (call compile _List_variable))	) then {
 		player groupchat "Adding to list...";
-		
+
 		call compile format["%1 set[count %1, ""%2""];", _List_variable, _uid];
 		call compile format["%1 = %2;", _List_pv_c, _List_variable];
-		
+
 		publicVariableServer _List_pv_c;
-		
+
 		player groupchat "Sent to server, please wait for lists to update";
-		
+
 	} else {
 		player groupchat "ERROR: Already in list";
 	};
@@ -513,32 +512,32 @@ A_WBL_F_L_ADD = {
 // Remove from list
 A_WBL_F_L_REMOVE = {
 	private["_list_name", "_uid", "_List_variable", "_List_pv_c"];
-	
+
 	_list_name 	= _this select 0;
 	_uid		= _this select 1;
-	
+
 	if (_uid == "") exitwith {
 		player groupchat "ERROR: Please reselect the list item then retry the removal button";
 	};
 
 	_List_variable 	= "";
 	_List_pv_c		= "";
-	
+
 	{
 		if ((_x select 0) == _list_name) then {
 			_List_variable 		= _x select 1;
 			_List_pv_c			= _x select 4;
 		};
 	} forEach A_WBL_LISTS;
-	
+
 	if ((_uid in (call compile _List_variable))	) then {
 		player groupchat "Removing from list...";
 
 		call compile format["%1 = %1 - [""%2""];", _List_variable, _uid];
 		call compile format["%1 = %2", _List_pv_c, _List_variable];
-		
+
 		publicVariableServer _List_pv_c;
-		
+
 		player groupchat "Sent to server, please wait for lists to update";
 	} else {
 		player groupchat "ERROR: selected not in list";
@@ -548,25 +547,25 @@ A_WBL_F_L_REMOVE = {
 // Remove ALL from list
 A_WBL_F_L_REMOVE_ALL = {
 	private["_list_name", "_List_variable", "_List_pv_c"];
-	
+
 	_list_name 	= _this select 0;
-	
+
 	_List_variable 	= "";
 	_List_pv_c		= "";
-	
+
 	{
 		if ((_x select 0) == _list_name) then {
 			_List_variable 		= _x select 1;
 			_List_pv_c			= _x select 4;
 		};
 	} forEach A_WBL_LISTS;
-	
+
 	player groupchat "Clearing list...";
-	
+
 	call compile format["%1 = [];", _List_variable];
 	call compile format["%1 = %2", _List_pv_c, _List_variable];
 
-	publicVariableServer _List_pv_c;	
+	publicVariableServer _List_pv_c;
 	player groupchat "Sent to server, please wait for lists to update";
 };
 
@@ -584,7 +583,7 @@ A_WBL_GETTYPE_NUM = {
 	} else {
 		_return = 2;
 	};};
-		
+
 	_return
 };
 
@@ -609,7 +608,7 @@ A_WBL_GETTYPE_NAME = {
 			_return = "PLAYER";
 		};
 	};
-		
+
 	_return
 };
 

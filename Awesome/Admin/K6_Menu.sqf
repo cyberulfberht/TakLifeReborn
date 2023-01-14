@@ -12,12 +12,12 @@ _Findex = -1;
 for [{_c=0}, {_c < (count PlayerStringArray)}, {_c=_c+1}] do {
 	_player_variable_name = PlayerStringArray select _c;
 	_player_variable = missionNamespace getVariable _player_variable_name;
-	
+
 	if ([_player_variable] call player_exists) then {
 		private["_player_name"];
 		_player_name = (name _player_variable);
 		_Findex = lbAdd [AdminPlayers, format ["%1 - (%2)", _player_variable_name, _player_name]];
-		lbSetData [AdminPlayers, _Findex, format["%1", _player_variable]];	
+		lbSetData [AdminPlayers, _Findex, format["%1", _player_variable]];
 	};
 };
 
