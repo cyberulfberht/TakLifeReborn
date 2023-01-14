@@ -8,7 +8,7 @@ cop_salary_handout = {
 
 	private["_income"];
 	_income = add_copmoney;
-	
+
 	if ("patrol_training" call INV_HasLicense) then {
 		_income = _income + 5000;
 	};
@@ -28,7 +28,7 @@ cop_salary_handout = {
 	if (ischief) then {
 		_income = _income + chiefExtraPay;
 	};
-	
+
 	if(isBlu) then {
 		_bluZone = ['bluforZone'] call zone_getOwner;
 		if (_bluZone == resistance || _bluZone == east) then {
@@ -36,19 +36,19 @@ cop_salary_handout = {
 			player commandChat "An enemy force controls a capture zone of your faction, resulting in a 50% income penalty. Retake your faction capture zone.";
 		};
 	};
-	
+
 	if ((round(time/60)) <= 14) then {
 		_income = _income + 200000;
 	};
 
 	_income = if (isNil "_income") then { add_copmoney } else {_income};
 	_income = if (typeName _income != "SCALAR") then { add_copmoney } else { _income };
-	
+
 	[player, (round _income)] call transaction_bank;
-	
+
 	player groupChat format[localize "STRS_moneh_copmoneyadd", rolestring, strM((round _income))];
 	sleep 1;
-	
+
 	if(ischief)then{
 		player groupchat format["As a Police Chief you get an extra paycheck of $%1.", strM(chiefExtraPay)]
 	};
@@ -60,16 +60,16 @@ civilian_salary_handout = {
 	if ([player] call player_get_dead) exitWith {
 		player groupChat format[localize "STRS_moneh_paycheckdead"];
 	};
-	
+
 	private["_income", "_activecount"];
 	_income = add_civmoney;
 	if(isCiv) then {
 		_income = _income - 40000;
 	};
-	
-	
+
+
 	_activecount = 0;
-	
+
 	if (isCiv) then {
 		private["_i"];
 		for [{_i=0}, {_i < (count BuildingsOwnerArray)}, {_i=_i+1}] do {
@@ -121,7 +121,7 @@ civilian_salary_handout = {
 
 		timeinworkplace = 0;
 	};
-	
+
 	if(isIns) then {
 		_insZones = [resistance] call zone_getCount;
 		if(_insZones < 3) then {
@@ -129,7 +129,7 @@ civilian_salary_handout = {
 			player commandChat format ["Controlling %1/3 capture zones yields %2 percent income. We must spread Shariah further.", _insZones, 25 + (_insZones)*25];
 		};
 	};
-	
+
 	if(isOpf) then {
 		_opfZone = ['opforZone'] call zone_getOwner;
 		if (_opfZone == resistance || _opfZone == west) then {
@@ -137,23 +137,23 @@ civilian_salary_handout = {
 			player commandChat "An enemy force controls a capture zone of your faction, resulting in a 50% income penalty. Retake your faction capture zone.";
 		};
 	};
-	
+
 	if ((round(time/60)) <= 14) then {
 		_income = _income + 200000;
 	};
-	
-	
+
+
 	_income = if (isNil "_income") then { add_civmoney } else {_income};
 	_income = if (typeName _income != "SCALAR") then { add_civmoney } else { _income };
-	
+
 	_income = round _income;
 	[player, _income] call transaction_bank;
-	
+
 
 	systemChat format[localize "STRS_moneh_civmoneyadd", rolestring, strM(_income)];
-	
+
 	_taxes = round((call shop_get_paid_taxes));
-	
+
 	if (isMayor) then {
 		MayorTaxes = MayorTaxes + _taxes;
 		MayorTaxes = round(MayorTaxes*(MayorTaxPercent/100));
@@ -168,9 +168,9 @@ civilian_salary_handout = {
 	call shop_reset_paid_taxes;
 };
     supporter_salary_handout = {
-     
+
             _uid = getPlayerUID player;
-     
+
             _admincashbonus = 0;
             _supportercashbonus = 0;
 			_income = 0;
@@ -200,7 +200,7 @@ civilian_salary_handout = {
                     _supportercashbonus = 100000;
             };
             _income = _admincashbonus + _supportercashbonus;
-			
+
 			// Disabled for bonus
 			/*if(!isCiv) then {
 				if(isBlu) then {
@@ -224,12 +224,12 @@ civilian_salary_handout = {
 					};
 				};
 			};*/
-			
+
             if (_income > 0) then
             {
                 [player, _income] call transaction_bank;
 				sleep 2;
-                systemChat format["You recieved a bonus income of $%1. Thanks for supporting TLX!", _income];
+                systemChat format["You recieved a bonus income of $%1. Thanks for supporting TakLife Reborn!", _income];
             };
     };
 
@@ -264,7 +264,7 @@ civilian_salary_loop = {
 		_i = _i - 1;
 	};
 	if (isBlu) exitWith {};
-	
+
 	[] spawn civilian_salary_handout;
     [] spawn supporter_salary_handout;
 	[1] call isleep;
