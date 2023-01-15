@@ -1,4 +1,4 @@
-startmoneh = 1000000;
+startmoneh = 50000000;
 supportermoneh = 1000000;
 silvermoneh = 1000000;
 goldmoneh = 1000000;
